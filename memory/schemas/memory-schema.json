@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Memory Graph Schema",
+  "type": "object",
+  "properties": {
+    "entities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Unique name of the entity"
+          },
+          "entityType": {
+            "type": "string",
+            "description": "Type of entity (person, company, project, etc.)"
+          },
+          "observations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of observations about the entity"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the entity was created"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the entity was last updated"
+          }
+        },
+        "required": ["name", "entityType", "observations"]
+      }
+    },
+    "relations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "description": "Source entity name"
+          },
+          "to": {
+            "type": "string",
+            "description": "Target entity name"
+          },
+          "relationType": {
+            "type": "string",
+            "description": "Type of relation in active voice"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the relation was created"
+          }
+        },
+        "required": ["from", "to", "relationType"]
+      }
+    }
+  },
+  "required": ["entities", "relations"]
+}

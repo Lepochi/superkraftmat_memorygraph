@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Superkraftmat Memory Manager</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="frontend/framework.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon"></div>
+                <h1>Memory Manager</h1>
+            </div>
+            <div class="header-actions">
+                <button class="btn-secondary" id="exportBtn">
+                    <span class="icon">↗</span>
+                    Export
+                </button>
+                <button class="btn-primary" id="addEntityBtn">
+                    <span class="icon">+</span>
+                    New Entity
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="search-container">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" placeholder="Search entities..." id="searchInput">
+                </div>
+            </div>
+
+            <div class="filter-tabs">
+                <button class="tab-btn active" data-filter="all">All</button>
+                <button class="tab-btn" data-filter="person">People</button>
+                <button class="tab-btn" data-filter="company">Companies</button>
+                <button class="tab-btn" data-filter="project">Projects</button>
+            </div>
+
+            <div class="entity-list" id="entityList">
+                <!-- Entities will be populated here -->
+            </div>
+        </aside>
+
+        <!-- Main Panel -->
+        <section class="main-panel">
+            <!-- Graph View -->
+            <div class="graph-container" id="graphContainer">
+                <div class="graph-controls">
+                    <button class="control-btn" id="centerGraphBtn">
+                        <span class="icon">⌖</span>
+                    </button>
+                    <button class="control-btn" id="fullscreenBtn">
+                        <span class="icon">⛶</span>
+                    </button>
+                </div>
+                <div class="graph-canvas" id="graphCanvas">
+                    <!-- Graph visualization will be rendered here -->
+                    <div class="empty-state">
+                        <div class="empty-icon">🧠</div>
+                        <h3>Your Knowledge Graph</h3>
+                        <p>Add entities to start building your memory network</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Detail Panel -->
+        <aside class="detail-panel" id="detailPanel">
+            <div class="detail-header">
+                <h2 id="detailTitle">Select an Entity</h2>
+                <button class="btn-icon" id="closeDetailBtn">×</button>
+            </div>
+            
+            <div class="detail-content" id="detailContent">
+                <div class="empty-detail">
+                    <div class="empty-icon">👆</div>
+                    <p>Click on an entity to view and edit its details</p>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Modals -->
+    <!-- Add Entity Modal -->
+    <div class="modal-overlay" id="addEntityModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Create New Entity</h3>
+                <button class="btn-icon" id="closeAddModal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="entityName">Name</label>
+                    <input type="text" id="entityName" placeholder="Enter entity name...">
+                </div>
+                <div class="form-group">
+                    <label for="entityType">Type</label>
+                    <select id="entityType">
+                        <option value="person">Person</option>
+                        <option value="company">Company</option>
+                        <option value="project">Project</option>
+                        <option value="system">System</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="entityObservations">Initial Observations</label>
+                    <textarea id="entityObservations" placeholder="Add some observations about this entity..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="cancelAddBtn">Cancel</button>
+                <button class="btn-primary" id="confirmAddBtn">Create Entity</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="frontend/src/api/memoryApi.js"></script>
+    <script src="frontend/framework.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

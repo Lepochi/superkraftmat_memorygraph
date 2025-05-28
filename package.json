@@ -1,0 +1,55 @@
+{
+  "name": "superkraftmat-memory-system",
+  "version": "1.0.0",
+  "description": "Knowledge graph memory system for AI applications",
+  "main": "backend/src/server.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build": "npm run build:frontend && npm run build:backend",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend && npm run build",
+    "start": "cd backend && npm start",
+    "test": "npm run test:backend && npm run test:frontend",
+    "test:backend": "cd backend && npm test",
+    "test:frontend": "cd frontend && npm test",
+    "lint": "eslint . --ext .js,.json",
+    "lint:fix": "eslint . --ext .js,.json --fix",
+    "docker:dev": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "setup": "npm install && cd frontend && npm install && cd ../backend && npm install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/superkraftmat/memory-system.git"
+  },
+  "keywords": [
+    "knowledge-graph",
+    "memory-system",
+    "ai",
+    "mcp",
+    "model-context-protocol",
+    "superkraftmat"
+  ],
+  "author": "Superkraftmat AS <leonard@superkraftmat.no>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/superkraftmat/memory-system/issues"
+  },
+  "homepage": "https://github.com/superkraftmat/memory-system#readme",
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "eslint": "^8.55.0",
+    "eslint-config-standard": "^17.1.0",
+    "prettier": "^3.1.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "workspaces": [
+    "frontend",
+    "backend"
+  ]
+}
