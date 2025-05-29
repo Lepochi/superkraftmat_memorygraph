@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Canvas Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #0d1117;
+            color: #f0f6fc;
+            font-family: system-ui;
+        }
+        #test-container {
+            width: 800px;
+            height: 600px;
+            border: 1px solid #30363d;
+            margin: 20px auto;
+            position: relative;
+            overflow: hidden;
+        }
+        .status {
+            text-align: center;
+            margin: 10px;
+        }
+        .success { color: #51cf66; }
+        .error { color: #ff6b6b; }
+    </style>
+</head>
+<body>
+    <h1>Canvas Component Test</h1>
+    <div class="status" id="status">Loading...</div>
+    <div id="test-container"></div>
+    
+    <script type="module">
+        import { Canvas } from '../frontend/src/components/Canvas.js';
+        
+        const status = document.getElementById('status');
+        
+        try {
+            // Initialize canvas
+            const container = document.getElementById('test-container');
+            const canvas = new Canvas(container);
+            
+            // Add test entities
+            const entities = [
+                { name: 'Test Entity 1', entityType: 'person', observations: ['First observation'] },
+                { name: 'Test Entity 2', entityType: 'project', observations: ['Second observation'] },
+                { name: 'Test Entity 3', entityType: 'company', observations: ['Third observation'] }
+            ];
+            
+            entities.forEach((entity, i) => {
+                const angle = (i / entities.length) * Math.PI * 2;
+                const position = {
+                    x: 5000 + Math.cos(angle) * 200,
+                    y: 5000 + Math.sin(angle) * 200
+                };
+                canvas.addEntity(entity, position);
+            });
+            
+            // Add connections
+            canvas.addConnection('Test Entity 1', 'Test Entity 2', 'works_on');
+            canvas.addConnection('Test Entity 2', 'Test Entity 3', 'belongs_to');
+            
+            // Zoom to fit
+            setTimeout(() => {
+                canvas.zoomToFit();
+                status.textContent = '✓ Canvas loaded successfully! Try dragging entities and zooming.';
+                status.className = 'status success';
+            }, 100);
+            
+        } catch (error) {
+            status.textContent = `✗ Error: ${error.message}`;
+            status.className = 'status error';
+            console.error(error);
+        }
+    </script>
+</body>
+</html>

@@ -1,3 +1,5 @@
+import { Canvas } from './components/Canvas.js';
+
 // Memory UI Application
 class MemoryUI {
     constructor() {
@@ -5,6 +7,7 @@ class MemoryUI {
         this.relations = [];
         this.selectedEntity = null;
         this.currentFilter = 'all';
+        this.canvas = null;
         
         this.init();
     }
@@ -117,10 +120,27 @@ class MemoryUI {
     }
 
     renderGraph() {
-        const canvas = document.getElementById('graphCanvas');
+        const canvasContainer = document.getElementById('graphCanvas');
+        
+        if (!this.canvas) {
+            this.canvas = new Canvas(canvasContainer);
+            
+            // Handle entity movement
+            this.canvas.onEntityMoved = (entityName, position) => {
+                // Save position to entity data
+                const entity = this.entities.find(e => e.name === entityName);
+                if (entity) {
+                    entity.position = position;
+                    // TODO: Persist to backend
+                }
+            };
+        }
+        
+        // Clear existing entities
+        this.canvas.clear();
         
         if (this.entities.length === 0) {
-            canvas.innerHTML = `
+            canvasContainer.innerHTML = `
                 <div class="empty-state">
                     <div class="empty-icon">🧠</div>
                     <h3>Your Knowledge Graph</h3>
@@ -130,69 +150,39 @@ class MemoryUI {
             return;
         }
 
-        // Simple graph visualization
-        const graphContainer = document.createElement('div');
-        graphContainer.className = 'graph-visualization';
-        graphContainer.style.cssText = `
-            position: relative;
-            width: 100%;
-            height: 100%;
-            padding: 40px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-            gap: 60px;
-        `;
-
+        // Add entities to canvas
         this.entities.forEach((entity, index) => {
-            const node = document.createElement('div');
-            node.className = 'graph-node';
-            node.dataset.entity = entity.name;
-            node.style.cssText = `
-                width: 120px;
-                height: 80px;
-                background: rgba(88, 166, 255, 0.1);
-                border: 2px solid rgba(88, 166, 255, 0.3);
-                border-radius: 12px;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                backdrop-filter: blur(8px);
-                position: relative;
-            `;
-
-            node.innerHTML = `
-                <div style="font-weight: 500; color: #f0f6fc; font-size: 12px; text-align: center; margin-bottom: 4px;">
-                    ${entity.name}
-                </div>
-                <div style="font-size: 10px; color: #8b949e; text-transform: capitalize;">
-                    ${entity.entityType}
-                </div>
-            `;
-
-            node.addEventListener('click', () => this.selectEntity(entity.name));
-            node.addEventListener('mouseenter', () => {
-                node.style.background = 'rgba(88, 166, 255, 0.2)';
-                node.style.borderColor = 'rgba(88, 166, 255, 0.6)';
-                node.style.transform = 'scale(1.05)';
-                node.style.boxShadow = '0 0 20px rgba(88, 166, 255, 0.3)';
+            // Use saved position or calculate new position
+            let position = entity.position;
+            if (!position) {
+                // Arrange in a circle for initial layout
+                const angle = (index / this.entities.length) * Math.PI * 2;
+                const radius = Math.min(300, this.entities.length * 30);
+                position = {
+                    x: 5000 + Math.cos(angle) * radius,
+                    y: 5000 + Math.sin(angle) * radius
+                };
+            }
+            
+            const canvasEntity = this.canvas.addEntity(entity, position);
+            
+            // Handle entity selection
+            canvasEntity.element.addEventListener('click', (e) => {
+                if (!canvasEntity.isDragging && !e.target.classList.contains('connection-point')) {
+                    this.selectEntity(entity.name);
+                }
             });
-            node.addEventListener('mouseleave', () => {
-                node.style.background = 'rgba(88, 166, 255, 0.1)';
-                node.style.borderColor = 'rgba(88, 166, 255, 0.3)';
-                node.style.transform = 'scale(1)';
-                node.style.boxShadow = 'none';
-            });
-
-            graphContainer.appendChild(node);
         });
 
-        canvas.innerHTML = '';
-        canvas.appendChild(graphContainer);
+        // Add connections based on relations
+        this.relations.forEach(relation => {
+            this.canvas.addConnection(relation.from, relation.to, relation.relationType);
+        });
+
+        // Zoom to fit all entities
+        setTimeout(() => {
+            this.canvas.zoomToFit();
+        }, 100);
     }
 
     selectEntity(entityName) {
@@ -203,16 +193,18 @@ class MemoryUI {
             item.classList.toggle('selected', item.dataset.entity === entityName);
         });
 
-        // Update selected state in graph
-        document.querySelectorAll('.graph-node').forEach(node => {
-            if (node.dataset.entity === entityName) {
-                node.style.background = 'rgba(88, 166, 255, 0.3)';
-                node.style.borderColor = '#58a6ff';
-            } else {
-                node.style.background = 'rgba(88, 166, 255, 0.1)';
-                node.style.borderColor = 'rgba(88, 166, 255, 0.3)';
-            }
-        });
+        // Update selected state in canvas
+        if (this.canvas) {
+            this.canvas.entities.forEach((entity, name) => {
+                if (name === entityName) {
+                    entity.element.classList.add('selected');
+                    entity.element.style.boxShadow = '0 0 20px rgba(88, 166, 255, 0.6)';
+                } else {
+                    entity.element.classList.remove('selected');
+                    entity.element.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.2)';
+                }
+            });
+        }
 
         this.showDetailPanel();
     }
@@ -277,10 +269,14 @@ class MemoryUI {
     hideDetailPanel() {
         this.selectedEntity = null;
         document.querySelectorAll('.entity-item').forEach(item => item.classList.remove('selected'));
-        document.querySelectorAll('.graph-node').forEach(node => {
-            node.style.background = 'rgba(88, 166, 255, 0.1)';
-            node.style.borderColor = 'rgba(88, 166, 255, 0.3)';
-        });
+        
+        // Remove selection from canvas entities
+        if (this.canvas) {
+            this.canvas.entities.forEach((entity) => {
+                entity.element.classList.remove('selected');
+                entity.element.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.2)';
+            });
+        }
     }
 
     setFilter(filter) {
@@ -373,8 +369,10 @@ class MemoryUI {
     }
 
     centerGraph() {
-        // TODO: Implement graph centering
-        this.showNotification('Graph centered', 'info');
+        if (this.canvas) {
+            this.canvas.zoomToFit();
+            this.showNotification('Graph centered', 'info');
+        }
     }
 
     toggleFullscreen() {

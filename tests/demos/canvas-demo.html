@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas UI Demo - Superkraftmat Memory System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+            background: #0d1117;
+            color: #f0f6fc;
+            overflow: hidden;
+        }
+        
+        .demo-header {
+            background: rgba(13, 17, 23, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #30363d;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+            position: relative;
+        }
+        
+        .demo-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .demo-controls {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .demo-btn {
+            background: rgba(88, 166, 255, 0.1);
+            border: 1px solid rgba(88, 166, 255, 0.3);
+            color: #58a6ff;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .demo-btn:hover {
+            background: rgba(88, 166, 255, 0.2);
+            border-color: #58a6ff;
+        }
+        
+        #canvas-container {
+            width: 100%;
+            height: calc(100vh - 65px);
+            position: relative;
+        }
+        
+        .info-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(13, 17, 23, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 16px;
+            max-width: 300px;
+            z-index: 50;
+        }
+        
+        .info-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #58a6ff;
+        }
+        
+        .info-text {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #8b949e;
+        }
+        
+        .controls-hint {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #30363d;
+        }
+        
+        .control-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 4px 0;
+            font-size: 13px;
+        }
+        
+        .key {
+            background: #21262d;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-header">
+        <h1 class="demo-title">🧠 Superkraftmat Memory - Canvas UI Demo</h1>
+        <div class="demo-controls">
+            <button class="demo-btn" id="addEntityBtn">Add Entity</button>
+            <button class="demo-btn" id="addConnectionBtn">Add Connection</button>
+            <button class="demo-btn" id="centerViewBtn">Center View</button>
+            <button class="demo-btn" id="clearBtn">Clear All</button>
+        </div>
+    </div>
+    
+    <div id="canvas-container"></div>
+    
+    <div class="info-panel">
+        <div class="info-title">Interactive Knowledge Graph</div>
+        <div class="info-text">
+            This demo showcases the n8n-style canvas interface for the Superkraftmat Memory System.
+        </div>
+        <div class="controls-hint">
+            <div class="control-item">
+                <span class="key">Drag</span> to pan the canvas
+            </div>
+            <div class="control-item">
+                <span class="key">Scroll</span> to zoom in/out
+            </div>
+            <div class="control-item">
+                <span class="key">Drag entities</span> to reposition
+            </div>
+            <div class="control-item">
+                <span class="key">Click entity</span> to select
+            </div>
+        </div>
+    </div>
+    
+    <script type="module">
+        import { Canvas } from '../../frontend/src/components/Canvas.js';
+        
+        // Initialize canvas
+        const container = document.getElementById('canvas-container');
+        const canvas = new Canvas(container);
+        
+        // Sample data
+        const sampleEntities = [
+            { name: 'Superkraft', entityType: 'company', observations: ['AI development company', 'Based in Berlin'] },
+            { name: 'Memory System', entityType: 'project', observations: ['Knowledge graph for AI', 'Persistent context'] },
+            { name: 'Claude AI', entityType: 'system', observations: ['Advanced AI assistant', 'Anthropic'] },
+            { name: 'Canvas UI', entityType: 'system', observations: ['n8n-style interface', 'Draggable entities'] },
+            { name: 'Development Team', entityType: 'person', observations: ['Engineers and designers', 'Building the future'] }
+        ];
+        
+        // Add initial entities in a circle
+        sampleEntities.forEach((entity, i) => {
+            const angle = (i / sampleEntities.length) * Math.PI * 2;
+            const radius = 250;
+            const position = {
+                x: 5000 + Math.cos(angle) * radius,
+                y: 5000 + Math.sin(angle) * radius
+            };
+            canvas.addEntity(entity, position);
+        });
+        
+        // Add connections
+        canvas.addConnection('Superkraft', 'Memory System', 'develops');
+        canvas.addConnection('Memory System', 'Claude AI', 'integrates_with');
+        canvas.addConnection('Memory System', 'Canvas UI', 'uses');
+        canvas.addConnection('Development Team', 'Memory System', 'builds');
+        canvas.addConnection('Canvas UI', 'Development Team', 'designed_by');
+        
+        // Center view after a short delay
+        setTimeout(() => canvas.zoomToFit(), 100);
+        
+        // Button handlers
+        let entityCounter = sampleEntities.length;
+        
+        document.getElementById('addEntityBtn').addEventListener('click', () => {
+            entityCounter++;
+            const types = ['person', 'company', 'project', 'system', 'other'];
+            const randomType = types[Math.floor(Math.random() * types.length)];
+            
+            const newEntity = {
+                name: `New Entity ${entityCounter}`,
+                entityType: randomType,
+                observations: [`Created at ${new Date().toLocaleTimeString()}`]
+            };
+            
+            // Add at current center of viewport
+            const rect = container.getBoundingClientRect();
+            const position = {
+                x: (rect.width / 2 - canvas.translate.x) / canvas.scale,
+                y: (rect.height / 2 - canvas.translate.y) / canvas.scale
+            };
+            
+            canvas.addEntity(newEntity, position);
+        });
+        
+        document.getElementById('addConnectionBtn').addEventListener('click', () => {
+            const entities = Array.from(canvas.entities.keys());
+            if (entities.length >= 2) {
+                const from = entities[Math.floor(Math.random() * entities.length)];
+                let to = entities[Math.floor(Math.random() * entities.length)];
+                while (to === from) {
+                    to = entities[Math.floor(Math.random() * entities.length)];
+                }
+                
+                const types = ['relates_to', 'connects_with', 'depends_on', 'influences'];
+                const type = types[Math.floor(Math.random() * types.length)];
+                
+                canvas.addConnection(from, to, type);
+            }
+        });
+        
+        document.getElementById('centerViewBtn').addEventListener('click', () => {
+            canvas.zoomToFit();
+        });
+        
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            if (confirm('Clear all entities and connections?')) {
+                canvas.clear();
+                entityCounter = 0;
+            }
+        });
+        
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'f' && (e.metaKey || e.ctrlKey)) {
+                e.preventDefault();
+                canvas.zoomToFit();
+            }
+        });
+    </script>
+</body>
+</html>
