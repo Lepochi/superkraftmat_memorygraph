@@ -141,3 +141,6 @@ memory/data/*.json
 
 # Docker
 .dockerignore
+
+# Checkpoints directory
+.checkpoints/

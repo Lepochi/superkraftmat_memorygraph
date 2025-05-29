@@ -25,8 +25,16 @@
 - **Docker Support**: Development environment configuration
 - **Testing Framework**: Jest with 91%+ service coverage, 100% middleware coverage
 - **Documentation**: Comprehensive docs for users and developers
-- **Process Management**: Automated cleanup and startup system
-- **Frontend Build**: Proper Vite configuration, no longer needs Live Server
+- **Process Management**: Automated cleanup and startup system (May 29, 2025)
+  - Process Manager script with PID tracking
+  - Unified startup with interactive menu
+  - NPM scripts: clean, status, stop
+  - Platform-specific port killing
+- **Frontend Build**: Proper Vite configuration, no longer needs Live Server (May 29, 2025)
+  - Fixed port 5173 access issue
+  - Proper ES module configuration
+  - Proxy to backend API
+- **Checkpoint System**: Resume points in .checkpoints/ directory (May 29, 2025)
 
 ### Claude Code Integration
 - **Beast Mode System**: Complete resource system in `.claude/`
@@ -38,11 +46,13 @@
 ## 🚧 In Progress
 
 ### Current Sprint Focus
-1. **UI Enhancement Project** (Active)
+1. **UI Enhancement Project** (Active - Started May 29, 2025)
+   - Status: Just beginning implementation
    - Moving to n8n-style canvas with zoom/pan
    - Implementing draggable entities
    - Adding hierarchical layout visualization
    - Color-coded entity categories
+   - Current state: Basic flexbox layout exists, need to transform to canvas
 
 2. **Memory Guidelines Implementation**
    - Framework is built, needs real-world testing
@@ -58,13 +68,22 @@
 ## 🐛 Known Issues
 
 ### High Priority
-1. ~~**Frontend Port Issue**: Live Server needed as workaround (port 5500)~~ ✅ FIXED
+1. ~~**Frontend Port Issue**: Live Server needed as workaround (port 5500)~~ ✅ FIXED (May 29, 2025)
    - ~~Direct port access (5173/5174) not working~~
    - ~~Likely Vite configuration issue~~
+   - Solution: Created proper Vite config and restructured frontend files
 
-2. ~~**Multiple Server Instances**: Node processes not cleaning up properly~~ ✅ FIXED
+2. ~~**Multiple Server Instances**: Node processes not cleaning up properly~~ ✅ FIXED (May 29, 2025)
    - ~~Need better process management~~
    - ~~Add graceful shutdown handlers~~
+   - Solution: Implemented comprehensive process management system
+
+### New Issues Discovered (May 29, 2025)
+1. **Vite CJS Warning**: "The CJS build of Vite's Node API is deprecated"
+   - Non-critical warning, but should update to ESM imports in future
+   - Appears when running npm run dev
+2. **Test Coverage**: Framework engine still at 65% (needs 80%)
+   - Overall coverage at 43.97% due to untested framework code
 
 ### Medium Priority
 1. **Memory File Growth**: No automatic archiving yet
