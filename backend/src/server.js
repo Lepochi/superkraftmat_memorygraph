@@ -1,75 +1,57 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const fs = require('fs').promises;
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
-// Import framework routes
+// Import dependencies
 const frameworkRoutes = require('./routes/framework');
+const { validate } = require('./middleware/validation');
+const asyncHandler = require('./middleware/asyncHandler');
+const { errorHandler } = require('./utils/errors');
+const { getInstance: getMemoryService } = require('./services/memoryService');
 
 const app = express();
 const PORT = process.env.PORT || 8000;
 const MEMORY_PATH = process.env.MEMORY_FILE_PATH || path.join(__dirname, '../../memory/data/memory.jsonl');
 
-// Helper functions for JSONL handling
-function parseJSONL(jsonlText) {
-  const lines = jsonlText.trim().split('\n').filter(line => line.trim());
-  return lines.map(line => JSON.parse(line));
-}
+// Initialize memory service
+const memoryService = getMemoryService(MEMORY_PATH);
 
-function convertToJSON(jsonlData) {
-  const entities = [];
-  const relations = [];
-  
-  jsonlData.forEach(item => {
-    if (item.type === 'entity') {
-      entities.push({
-        name: item.name,
-        entityType: item.entityType,
-        observations: item.observations || []
-      });
-    } else if (item.type === 'relation') {
-      relations.push({
-        from: item.from,
-        to: item.to,
-        relationType: item.relationType
-      });
-    }
-  });
-  
-  return { entities, relations };
-}
+// Security middleware
+app.use(helmet());
 
-function convertToJSONL(entities, relations) {
-  const lines = [];
-  
-  entities.forEach(entity => {
-    lines.push(JSON.stringify({
-      type: 'entity',
-      name: entity.name,
-      entityType: entity.entityType,
-      observations: entity.observations || []
-    }));
-  });
-  
-  relations.forEach(relation => {
-    lines.push(JSON.stringify({
-      type: 'relation',
-      from: relation.from,
-      to: relation.to,
-      relationType: relation.relationType
-    }));
-  });
-  
-  return lines.join('\n');
-}
+// CORS configuration
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production' 
+    ? process.env.CORS_ORIGIN || 'http://localhost:5173'
+    : true,
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
 
-// Middleware
-app.use(cors({
-  origin: true, // Allow all origins for development
-  credentials: true
-}));
-app.use(express.json());
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.'
+});
+
+const writeLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 50, // limit write operations
+  message: 'Too many write operations, please try again later.'
+});
+
+app.use('/api/', limiter);
+app.use('/api/memory/entities', writeLimiter);
+app.use('/api/memory/relations', writeLimiter);
+
+// Body parsing with size limit
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Logging middleware
 app.use((req, res, next) => {
@@ -81,107 +63,121 @@ app.use((req, res, next) => {
 app.use('/api/framework', frameworkRoutes);
 
 // Memory API endpoints
-app.get('/api/memory', async (req, res) => {
-  try {
-    const data = await fs.readFile(MEMORY_PATH, 'utf8');
-    const jsonlData = parseJSONL(data);
-    const memory = convertToJSON(jsonlData);
-    res.json(memory);
-  } catch (error) {
-    console.error('Error reading memory:', error);
-    res.status(500).json({ error: 'Failed to read memory' });
-  }
-});
+app.get('/api/memory', asyncHandler(async (req, res) => {
+  const memory = await memoryService.readMemory();
+  res.json(memory);
+}));
 
-app.post('/api/memory/entities', async (req, res) => {
-  try {
-    const { entities } = req.body;
-    const data = await fs.readFile(MEMORY_PATH, 'utf8');
-    const jsonlData = parseJSONL(data);
-    const memory = convertToJSON(jsonlData);
-    
-    // Add new entities
-    entities.forEach(entity => {
-      if (!memory.entities.find(e => e.name === entity.name)) {
-        memory.entities.push({
-          ...entity,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        });
-      }
+app.post('/api/memory/entities', validate('createEntities'), asyncHandler(async (req, res) => {
+  const { entities } = req.body;
+  const created = await memoryService.createEntities(entities);
+  res.status(201).json({ 
+    success: true, 
+    entities: created,
+    count: created.length 
+  });
+}));
+
+app.post('/api/memory/relations', validate('createRelations'), asyncHandler(async (req, res) => {
+  const { relations } = req.body;
+  const created = await memoryService.createRelations(relations);
+  res.status(201).json({ 
+    success: true, 
+    relations: created,
+    count: created.length 
+  });
+}));
+
+app.put('/api/memory/entities/:name/observations', validate('entityName'), asyncHandler(async (req, res) => {
+  const { name } = req.params;
+  const { observations } = req.body;
+  
+  if (!Array.isArray(observations)) {
+    return res.status(400).json({ 
+      error: 'Observations must be an array' 
     });
-    
-    const newJSONL = convertToJSONL(memory.entities, memory.relations);
-    await fs.writeFile(MEMORY_PATH, newJSONL);
-    res.json({ success: true, entities });
-  } catch (error) {
-    console.error('Error creating entities:', error);
-    res.status(500).json({ error: 'Failed to create entities' });
   }
-});
+  
+  const updated = await memoryService.updateEntityObservations(name, observations);
+  res.json({ 
+    success: true, 
+    entity: updated 
+  });
+}));
 
-app.post('/api/memory/relations', async (req, res) => {
-  try {
-    const { relations } = req.body;
-    const data = await fs.readFile(MEMORY_PATH, 'utf8');
-    const jsonlData = parseJSONL(data);
-    const memory = convertToJSON(jsonlData);
-    
-    // Add new relations
-    relations.forEach(relation => {
-      memory.relations.push({
-        ...relation,
-        createdAt: new Date().toISOString()
-      });
+app.delete('/api/memory/entities/:name', validate('entityName'), asyncHandler(async (req, res) => {
+  const { name } = req.params;
+  const result = await memoryService.deleteEntity(name);
+  res.json({ 
+    success: true, 
+    deleted: name,
+    relationsDeleted: result.deletedRelations
+  });
+}));
+
+app.get('/api/memory/search', asyncHandler(async (req, res) => {
+  const { q } = req.query;
+  
+  if (!q || q.trim().length < 2) {
+    return res.status(400).json({ 
+      error: 'Search query must be at least 2 characters' 
     });
-    
-    const newJSONL = convertToJSONL(memory.entities, memory.relations);
-    await fs.writeFile(MEMORY_PATH, newJSONL);
-    res.json({ success: true, relations });
-  } catch (error) {
-    console.error('Error creating relations:', error);
-    res.status(500).json({ error: 'Failed to create relations' });
   }
-});
-
-app.delete('/api/memory/entities/:name', async (req, res) => {
-  try {
-    const { name } = req.params;
-    const data = await fs.readFile(MEMORY_PATH, 'utf8');
-    const jsonlData = parseJSONL(data);
-    const memory = convertToJSON(jsonlData);
-    
-    // Remove entity and related relations
-    memory.entities = memory.entities.filter(e => e.name !== name);
-    memory.relations = memory.relations.filter(r => r.from !== name && r.to !== name);
-    
-    const newJSONL = convertToJSONL(memory.entities, memory.relations);
-    await fs.writeFile(MEMORY_PATH, newJSONL);
-    res.json({ success: true, deleted: name });
-  } catch (error) {
-    console.error('Error deleting entity:', error);
-    res.status(500).json({ error: 'Failed to delete entity' });
-  }
-});
+  
+  const results = await memoryService.searchEntities(q);
+  res.json({ 
+    query: q, 
+    results,
+    count: results.length 
+  });
+}));
 
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'healthy', 
     timestamp: new Date().toISOString(),
-    memoryPath: MEMORY_PATH
+    memoryPath: MEMORY_PATH,
+    environment: process.env.NODE_ENV || 'development',
+    version: process.env.npm_package_version || '1.0.0'
   });
 });
 
-// Error handling
-app.use((err, req, res, next) => {
-  console.error('Server error:', err);
-  res.status(500).json({ error: 'Internal server error' });
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ 
+    error: 'Not found',
+    code: 'NOT_FOUND',
+    path: req.path
+  });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Superkraftmat Memory Backend running on http://localhost:${PORT}`);
-  console.log(`📁 Memory file: ${MEMORY_PATH}`);
-  console.log(`🌐 CORS enabled for: ${process.env.CORS_ORIGIN || 'http://localhost:5173'}`);
+// Error handling middleware (must be last)
+app.use(errorHandler);
+
+// Start server only if not in test environment
+let server;
+if (process.env.NODE_ENV !== 'test') {
+  server = app.listen(PORT, () => {
+    console.log(`🚀 Superkraftmat Memory Backend running on http://localhost:${PORT}`);
+    console.log(`📁 Memory file: ${MEMORY_PATH}`);
+    console.log(`🌐 CORS: ${process.env.NODE_ENV === 'production' ? 'Production mode' : 'Development mode'}`);
+    console.log(`🔒 Security: Helmet enabled, Rate limiting active`);
+  });
+}
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM signal received: closing HTTP server');
+  if (server) {
+    server.close(() => {
+      console.log('HTTP server closed');
+      process.exit(0);
+    });
+  } else {
+    process.exit(0);
+  }
 });
+
+// Export for testing
+module.exports = app;

@@ -1,0 +1,15 @@
+{
+  "initialized": "2025-05-29T14:39:46Z",
+  "projects": {},
+  "patterns": {
+    "successful_prompts": [],
+    "failed_prompts": [],
+    "common_refactors": [],
+    "test_patterns": []
+  },
+  "thresholds": {
+    "complexity_trigger": 100,
+    "prompt_success_rate": 0.8,
+    "test_coverage_target": 0.8
+  }
+}
