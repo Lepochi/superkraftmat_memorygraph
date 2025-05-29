@@ -98,7 +98,7 @@ class MemoryAPI {
         }
     }
 
-    async healthCheck() {
+    async checkHealth() {
         try {
             const response = await this.fetchWithTimeout(`${this.baseURL}/health`);
             if (!response.ok) {
@@ -145,4 +145,6 @@ class MemoryAPI {
 }
 
 // Export the API instance
-window.memoryAPI = new MemoryAPI();
+const memoryAPI = new MemoryAPI();
+export { memoryAPI as MemoryAPI };
+window.memoryAPI = memoryAPI;

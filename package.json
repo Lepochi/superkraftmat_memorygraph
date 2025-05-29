@@ -4,9 +4,12 @@
   "description": "Knowledge graph memory system for AI applications",
   "main": "backend/src/server.js",
   "scripts": {
-    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "dev:backend": "cd backend && npm run dev",
-    "dev:frontend": "cd frontend && npm run dev",
+    "dev": "node start-system.js all",
+    "dev:backend": "node start-system.js backend",
+    "dev:frontend": "node start-system.js frontend",
+    "dev:old": "concurrently \"npm run dev:backend:old\" \"npm run dev:frontend:old\"",
+    "dev:backend:old": "cd backend && npm run dev",
+    "dev:frontend:old": "cd frontend && npm run dev",
     "build": "npm run build:frontend && npm run build:backend",
     "build:frontend": "cd frontend && npm run build",
     "build:backend": "cd backend && npm run build",
@@ -18,7 +21,10 @@
     "lint:fix": "eslint . --ext .js,.json --fix",
     "docker:dev": "docker-compose up -d",
     "docker:down": "docker-compose down",
-    "setup": "npm install && cd frontend && npm install && cd ../backend && npm install"
+    "setup": "npm install && cd frontend && npm install && cd ../backend && npm install",
+    "clean": "node scripts/process-manager.js cleanup",
+    "status": "node scripts/process-manager.js list",
+    "stop": "node scripts/process-manager.js stop-all"
   },
   "repository": {
     "type": "git",

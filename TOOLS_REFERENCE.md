@@ -136,20 +136,31 @@ Run from project root
 
 ### Development
 ```bash
-# Start everything (frontend + backend)
+# Start everything (frontend + backend) with auto-cleanup
 npm run dev
 
 # Start backend only
-npm run server
+npm run dev:backend
 
 # Start frontend only
-npm run client
+npm run dev:frontend
+
+# Process Management
+npm run clean        # Clean up zombie processes
+npm run status       # Check process status
+npm run stop         # Stop all services
 ```
 
 ### Testing
 ```bash
 # Run all tests
 npm test
+
+# Run backend tests
+npm run test:backend
+
+# Run frontend tests  
+npm run test:frontend
 
 # Run with coverage
 npm run test:coverage
@@ -158,13 +169,17 @@ npm run test:coverage
 npm run test:watch
 ```
 
-### Building
+### Building & Setup
 ```bash
 # Build for production
 npm run build
 
-# Clean build artifacts
-npm run clean
+# Install all dependencies
+npm run setup
+
+# Lint code
+npm run lint
+npm run lint:fix
 ```
 
 ## 🎮 Development Workflows
@@ -305,11 +320,35 @@ tail -f logs/server.log
 tail -f logs/error.log
 ```
 
+## 🔧 Process Management Tools
+
+### Process Manager (`scripts/process-manager.js`)
+**Purpose**: Comprehensive process management and cleanup  
+**Commands**:
+```bash
+node scripts/process-manager.js cleanup    # Kill zombie processes
+node scripts/process-manager.js list       # Show process status
+node scripts/process-manager.js start-backend
+node scripts/process-manager.js start-frontend
+node scripts/process-manager.js stop-all
+```
+
+### Unified Startup (`start-system.js`)
+**Purpose**: Interactive startup with health checks  
+**Usage**:
+```bash
+node start-system.js          # Interactive menu
+node start-system.js all      # Start everything
+node start-system.js cleanup  # Clean zombies
+node start-system.js status   # Check processes
+```
+
 ## 🆘 Troubleshooting Commands
 
 ### Reset Development Environment
 ```bash
-# Clean and reinstall
+# Clean everything and restart
+npm run clean
 rm -rf node_modules package-lock.json
 npm install
 npm run dev
@@ -317,11 +356,12 @@ npm run dev
 
 ### Fix Port Issues
 ```bash
-# Kill all Node processes
-pkill -f node
+# Use process manager
+npm run clean
 
-# Find process on specific port
-lsof -i :8000
+# Or manually kill ports
+lsof -ti :8000 | xargs kill -9
+lsof -ti :5173 | xargs kill -9
 kill -9 [PID]
 ```
 
