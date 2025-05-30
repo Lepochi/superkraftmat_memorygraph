@@ -164,10 +164,9 @@ class DatabaseManager {
     /**
      * Backup database
      */
-    backup(backupPath) {
-        const backup = this.db.backup(backupPath);
-        backup.step(-1); // Backup entire database at once
-        backup.close();
+    async backup(backupPath) {
+        // better-sqlite3 backup API returns a promise
+        await this.db.backup(backupPath);
         console.log(`Database backed up to ${backupPath}`);
     }
 }
