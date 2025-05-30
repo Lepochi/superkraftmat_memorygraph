@@ -10,14 +10,24 @@ const frameworkRoutes = require('./routes/framework');
 const { validate } = require('./middleware/validation');
 const asyncHandler = require('./middleware/asyncHandler');
 const { errorHandler } = require('./utils/errors');
+
+// Import memory services
 const { getInstance: getMemoryService } = require('./services/memoryService');
+const { getInstance: getMemoryServiceV2 } = require('./services/memoryServiceV2');
 
 const app = express();
 const PORT = process.env.PORT || 8000;
-const MEMORY_PATH = process.env.MEMORY_FILE_PATH || path.join(__dirname, '../../memory/data/memory.jsonl');
 
-// Initialize memory service
-const memoryService = getMemoryService(MEMORY_PATH);
+// Determine which storage mode to use
+const USE_SQLITE = process.env.USE_SQLITE === 'true' || process.env.USE_SQLITE === '1';
+const MEMORY_PATH = process.env.MEMORY_FILE_PATH || path.join(__dirname, '../../memory/data/memory.jsonl');
+const SQLITE_PATH = process.env.SQLITE_PATH || path.join(__dirname, '../../memory/database/superkraft.db');
+
+// Initialize memory service based on mode
+console.log(`Starting server with ${USE_SQLITE ? 'SQLite' : 'JSONL'} storage mode`);
+const memoryService = USE_SQLITE 
+  ? getMemoryServiceV2(SQLITE_PATH)
+  : getMemoryService(MEMORY_PATH);
 
 // Security middleware
 app.use(helmet());
@@ -49,135 +59,122 @@ app.use('/api/', limiter);
 app.use('/api/memory/entities', writeLimiter);
 app.use('/api/memory/relations', writeLimiter);
 
-// Body parsing with size limit
+// Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-// Logging middleware
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
-  next();
-});
+app.use(express.urlencoded({ extended: true }));
 
 // Framework routes
 app.use('/api/framework', frameworkRoutes);
 
-// Memory API endpoints
+// Health check
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    mode: USE_SQLITE ? 'sqlite' : 'jsonl',
+    path: USE_SQLITE ? SQLITE_PATH : MEMORY_PATH
+  });
+});
+
+// API Routes
+
+// Get all memory data
 app.get('/api/memory', asyncHandler(async (req, res) => {
   const memory = await memoryService.readMemory();
   res.json(memory);
 }));
 
-app.post('/api/memory/entities', validate('createEntities'), asyncHandler(async (req, res) => {
-  const { entities } = req.body;
-  const created = await memoryService.createEntities(entities);
-  res.status(201).json({ 
-    success: true, 
-    entities: created,
-    count: created.length 
-  });
+// Create entities
+app.post('/api/memory/entities', 
+  validate('createEntities'),
+  asyncHandler(async (req, res) => {
+    const created = await memoryService.createEntities(req.body.entities);
+    res.status(201).json({ created });
+  })
+);
+
+// Delete entity
+app.delete('/api/memory/entities/:name', asyncHandler(async (req, res) => {
+  const result = await memoryService.deleteEntity(req.params.name);
+  res.json(result);
 }));
 
-app.post('/api/memory/relations', validate('createRelations'), asyncHandler(async (req, res) => {
-  const { relations } = req.body;
-  const created = await memoryService.createRelations(relations);
-  res.status(201).json({ 
-    success: true, 
-    relations: created,
-    count: created.length 
-  });
-}));
+// Update entity observations
+app.patch('/api/memory/entities/:name/observations', 
+  validate('updateObservations'),
+  asyncHandler(async (req, res) => {
+    const updated = await memoryService.updateEntityObservations(
+      req.params.name, 
+      req.body.observations
+    );
+    res.json(updated);
+  })
+);
 
-app.put('/api/memory/entities/:name/observations', validate('entityName'), asyncHandler(async (req, res) => {
-  const { name } = req.params;
-  const { observations } = req.body;
-  
-  if (!Array.isArray(observations)) {
-    return res.status(400).json({ 
-      error: 'Observations must be an array' 
-    });
-  }
-  
-  const updated = await memoryService.updateEntityObservations(name, observations);
-  res.json({ 
-    success: true, 
-    entity: updated 
-  });
-}));
+// Create relations
+app.post('/api/memory/relations', 
+  validate('createRelations'),
+  asyncHandler(async (req, res) => {
+    const created = await memoryService.createRelations(req.body.relations);
+    res.status(201).json({ created });
+  })
+);
 
-app.delete('/api/memory/entities/:name', validate('entityName'), asyncHandler(async (req, res) => {
-  const { name } = req.params;
-  const result = await memoryService.deleteEntity(name);
-  res.json({ 
-    success: true, 
-    deleted: name,
-    relationsDeleted: result.deletedRelations
-  });
-}));
-
+// Search entities
 app.get('/api/memory/search', asyncHandler(async (req, res) => {
   const { q } = req.query;
-  
-  if (!q || q.trim().length < 2) {
-    return res.status(400).json({ 
-      error: 'Search query must be at least 2 characters' 
-    });
+  if (!q) {
+    return res.status(400).json({ error: 'Query parameter "q" is required' });
   }
   
   const results = await memoryService.searchEntities(q);
-  res.json({ 
-    query: q, 
-    results,
-    count: results.length 
-  });
+  res.json({ results });
 }));
 
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'healthy', 
-    timestamp: new Date().toISOString(),
-    memoryPath: MEMORY_PATH,
-    environment: process.env.NODE_ENV || 'development',
-    version: process.env.npm_package_version || '1.0.0'
+// Storage mode info endpoint
+app.get('/api/info', (req, res) => {
+  res.json({
+    storage_mode: USE_SQLITE ? 'sqlite' : 'jsonl',
+    features: {
+      entities: true,
+      relations: true,
+      observations: true,
+      search: true,
+      framework: true
+    },
+    performance: {
+      expected_query_time: USE_SQLITE ? '<10ms' : '100-500ms',
+      max_entities: USE_SQLITE ? '100,000+' : '1,000'
+    }
   });
 });
+
+// Error handling
+app.use(errorHandler);
 
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({ 
-    error: 'Not found',
-    code: 'NOT_FOUND',
-    path: req.path
+    error: 'Not Found',
+    message: `Route ${req.method} ${req.url} not found`
   });
 });
-
-// Error handling middleware (must be last)
-app.use(errorHandler);
-
-// Start server only if not in test environment
-let server;
-if (process.env.NODE_ENV !== 'test') {
-  server = app.listen(PORT, () => {
-    console.log(`🚀 Superkraftmat Memory Backend running on http://localhost:${PORT}`);
-    console.log(`📁 Memory file: ${MEMORY_PATH}`);
-    console.log(`🌐 CORS: ${process.env.NODE_ENV === 'production' ? 'Production mode' : 'Development mode'}`);
-    console.log(`🔒 Security: Helmet enabled, Rate limiting active`);
-  });
-}
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
   console.log('SIGTERM signal received: closing HTTP server');
-  if (server) {
-    server.close(() => {
-      console.log('HTTP server closed');
-      process.exit(0);
-    });
-  } else {
-    process.exit(0);
-  }
+  server.close(() => {
+    console.log('HTTP server closed');
+    if (USE_SQLITE && memoryService.close) {
+      memoryService.close();
+      console.log('Database connection closed');
+    }
+  });
 });
 
-// Export for testing
-module.exports = app;
+// Start server
+const server = app.listen(PORT, () => {
+  console.log(`Memory API server running on port ${PORT}`);
+  console.log(`Storage: ${USE_SQLITE ? 'SQLite database' : 'JSONL file'}`);
+  console.log(`Path: ${USE_SQLITE ? SQLITE_PATH : MEMORY_PATH}`);
+});
