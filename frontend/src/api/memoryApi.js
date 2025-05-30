@@ -27,14 +27,18 @@ class MemoryAPI {
 
     async fetchMemory() {
         try {
+            console.log('Fetching memory from:', `${this.baseURL}/memory`);
             const response = await this.fetchWithTimeout(`${this.baseURL}/memory`);
+            console.log('Response status:', response.status);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
+            console.log('Received data:', data);
             return this.convertToUIFormat(data);
         } catch (error) {
             console.error('Failed to fetch memory:', error);
+            console.error('Error details:', error.message, error.stack);
             throw error;
         }
     }
@@ -100,13 +104,18 @@ class MemoryAPI {
 
     async checkHealth() {
         try {
+            console.log('Checking health at:', `${this.baseURL}/health`);
             const response = await this.fetchWithTimeout(`${this.baseURL}/health`);
+            console.log('Health check response:', response.status);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            return await response.json();
+            const healthData = await response.json();
+            console.log('Health data:', healthData);
+            return healthData;
         } catch (error) {
             console.error('Health check failed:', error);
+            console.error('Health check error details:', error.message);
             throw error;
         }
     }

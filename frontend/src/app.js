@@ -42,6 +42,12 @@ class MemoryUI {
         document.getElementById('centerGraphBtn').addEventListener('click', () => this.centerGraph());
         document.getElementById('fullscreenBtn').addEventListener('click', () => this.toggleFullscreen());
 
+        // Sidebar toggle
+        document.getElementById('sidebarToggle').addEventListener('click', () => this.toggleSidebar());
+        
+        // Detail panel toggle
+        document.getElementById('detailToggle').addEventListener('click', () => this.toggleDetailPanel());
+
         // Modal overlay click to close
         document.getElementById('addEntityModal').addEventListener('click', (e) => {
             if (e.target === e.currentTarget) this.hideAddEntityModal();
@@ -54,7 +60,7 @@ class MemoryUI {
     async loadData() {
         try {
             // Check if backend is available
-            await window.memoryAPI.healthCheck();
+            await window.memoryAPI.checkHealth();
             
             // Load actual memory data from backend
             const data = await window.memoryAPI.fetchMemory();
@@ -376,8 +382,46 @@ class MemoryUI {
     }
 
     toggleFullscreen() {
-        // TODO: Implement fullscreen toggle
-        this.showNotification('Fullscreen toggle coming soon', 'info');
+        const mainPanel = document.querySelector('.main-panel');
+        const isFullscreen = mainPanel.classList.contains('fullscreen');
+        
+        if (!isFullscreen) {
+            mainPanel.classList.add('fullscreen');
+            document.getElementById('fullscreenBtn').innerHTML = '<span class="icon">⛶</span>';
+            this.showNotification('Entered fullscreen mode', 'info');
+        } else {
+            mainPanel.classList.remove('fullscreen');
+            document.getElementById('fullscreenBtn').innerHTML = '<span class="icon">⛶</span>';
+            this.showNotification('Exited fullscreen mode', 'info');
+        }
+    }
+    
+    toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const toggle = document.getElementById('sidebarToggle');
+        const isCollapsed = sidebar.classList.contains('collapsed');
+        
+        if (isCollapsed) {
+            sidebar.classList.remove('collapsed');
+            toggle.innerHTML = '<span>‹</span>';
+        } else {
+            sidebar.classList.add('collapsed');
+            toggle.innerHTML = '<span>›</span>';
+        }
+    }
+    
+    toggleDetailPanel() {
+        const detailPanel = document.getElementById('detailPanel');
+        const toggle = document.getElementById('detailToggle');
+        const isCollapsed = detailPanel.classList.contains('collapsed');
+        
+        if (isCollapsed) {
+            detailPanel.classList.remove('collapsed');
+            toggle.innerHTML = '<span>›</span>';
+        } else {
+            detailPanel.classList.add('collapsed');
+            toggle.innerHTML = '<span>‹</span>';
+        }
     }
 
     exportData() {

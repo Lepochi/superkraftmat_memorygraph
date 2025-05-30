@@ -5,16 +5,21 @@
  * Handles process cleanup and coordinated startup
  */
 
-const { spawn } = require('child_process');
-const path = require('path');
-const readline = require('readline');
-const { 
+import { spawn } from 'child_process';
+import path from 'path';
+import readline from 'readline';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import { 
   cleanupZombies, 
   killPort, 
   savePid, 
   readPid,
   listProcesses 
-} = require('./scripts/process-manager');
+} from './scripts/process-manager.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Colors for console output
 const colors = {
@@ -303,12 +308,8 @@ async function main() {
 }
 
 // Run the script
-if (require.main === module) {
-  main().catch(error => {
-    log(`\n❌ Fatal error: ${error.message}`, colors.red);
-    console.error(error);
-    process.exit(1);
-  });
-}
-
-module.exports = { main };
+main().catch(error => {
+  log(`\n❌ Fatal error: ${error.message}`, colors.red);
+  console.error(error);
+  process.exit(1);
+});

@@ -1,8 +1,8 @@
-# Superkraftmat Memory System - Coding Standards
+# Superkraftmat Memory System - Coding Standards v2.0
 
 ## 🎨 Code Style Guide
 
-### JavaScript Standards
+### JavaScript Standards (Frontend/Backend)
 
 #### Naming Conventions
 ```javascript
@@ -336,5 +336,176 @@ Before submitting code:
 
 ---
 
-*These standards are enforced by ESLint configuration and reviewed in PR process*
+### TypeScript Standards (MCP Server)
+
+#### Type Definitions
+```typescript
+// Interfaces: Prefix with 'I' for clarity
+interface IMemoryEntity {
+  id: number;
+  name: string;
+  type: EntityType;
+  metadata?: Record<string, unknown>;
+}
+
+// Types: PascalCase, descriptive
+type EntityType = 'person' | 'company' | 'project' | 'system' | 'other';
+type ImportanceScore = number; // 0-100
+
+// Enums: PascalCase, singular
+enum MemoryTier {
+  Critical = 1,
+  Active = 2,
+  Archive = 3
+}
+```
+
+#### Function Signatures
+```typescript
+// Always type parameters and return values
+function calculateImportance(entity: IMemoryEntity): ImportanceScore {
+  return entity.metadata?.importance || 50;
+}
+
+// Async functions with Promise types
+async function loadEntity(id: number): Promise<IMemoryEntity> {
+  const entity = await db.get('entities', id);
+  return entity;
+}
+
+// Optional parameters last
+function searchMemories(
+  query: string,
+  options?: ISearchOptions
+): IMemoryEntity[] {
+  // Implementation
+}
+```
+
+#### Class Structure
+```typescript
+// Use access modifiers explicitly
+class MemoryService {
+  private readonly db: Database;
+  private cache: Map<number, IMemoryEntity>;
+  
+  constructor(private config: IServiceConfig) {
+    this.db = new Database(config.dbPath);
+    this.cache = new Map();
+  }
+  
+  public async getMemory(id: number): Promise<IMemoryEntity> {
+    // Public API
+  }
+  
+  private validateEntity(entity: unknown): entity is IMemoryEntity {
+    // Type guard
+  }
+}
+```
+
+#### Error Handling
+```typescript
+// Custom error classes with proper typing
+class MemoryError extends Error {
+  constructor(
+    message: string,
+    public readonly code: string,
+    public readonly statusCode: number = 500
+  ) {
+    super(message);
+    this.name = 'MemoryError';
+  }
+}
+
+// Result type for operations
+type Result<T, E = Error> = 
+  | { success: true; data: T }
+  | { success: false; error: E };
+
+async function updateEntity(
+  id: number, 
+  data: Partial<IMemoryEntity>
+): Promise<Result<IMemoryEntity>> {
+  try {
+    const entity = await db.update(id, data);
+    return { success: true, data: entity };
+  } catch (error) {
+    return { success: false, error };
+  }
+}
+```
+
+#### MCP Protocol Types
+```typescript
+// MCP-specific interfaces
+interface IMCPRequest {
+  method: string;
+  params?: unknown;
+  id: string | number;
+}
+
+interface IMCPResponse<T = unknown> {
+  result?: T;
+  error?: IMCPError;
+  id: string | number;
+}
+
+interface IMCPError {
+  code: number;
+  message: string;
+  data?: unknown;
+}
+
+// Type-safe handlers
+type MCPHandler<P = unknown, R = unknown> = (
+  params: P
+) => Promise<R> | R;
+
+const handlers: Record<string, MCPHandler> = {
+  'memory/get': async (params: { id: number }) => {
+    return await memoryService.getMemory(params.id);
+  }
+};
+```
+
+#### Best Practices
+```typescript
+// 1. Use strict mode
+"use strict";
+
+// 2. Avoid 'any' - use 'unknown' and type guards
+function processData(data: unknown): void {
+  if (isMemoryEntity(data)) {
+    // Safe to use as IMemoryEntity
+  }
+}
+
+// 3. Prefer const assertions
+const CONFIG = {
+  maxRetries: 3,
+  timeout: 5000
+} as const;
+
+// 4. Use utility types
+type PartialEntity = Partial<IMemoryEntity>;
+type ReadonlyEntity = Readonly<IMemoryEntity>;
+type EntityKeys = keyof IMemoryEntity;
+
+// 5. Document complex types
+/**
+ * Represents a memory with calculated importance score
+ * @property score - Calculated 0-100 based on access patterns
+ * @property decay - Temporal decay factor applied
+ */
+interface IScoredMemory extends IMemoryEntity {
+  score: ImportanceScore;
+  decay: number;
+}
+```
+
+---
+
+*These standards are enforced by ESLint/TSLint configuration and reviewed in PR process*
 *Last Updated: May 29, 2025*
+*Version: 2.0*

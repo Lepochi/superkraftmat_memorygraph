@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Superkraftmat Memory System includes robust process management to prevent zombie processes and ensure clean startup/shutdown.
+The Superkraftmat Memory System includes robust process management to prevent zombie processes and ensure clean startup/shutdown. In v2.0, this extends to managing the SQLite database connections and the custom MCP server process.
 
 ## Quick Start
 
@@ -39,6 +39,8 @@ npm run stop
 - Kills processes on ports 8000 (backend) and 5173 (frontend)
 - Removes stale PID files
 - Cleans up zombie Node processes
+- v2.0: Ensures SQLite connections are properly closed
+- v2.0: Manages custom MCP server lifecycle
 
 ### 2. **PID Tracking**
 - Saves process IDs to `.pids/` directory
@@ -187,6 +189,8 @@ npm run dev
 3. **Check status** when debugging issues
 4. **Use the unified starter** (`npm run dev`) for consistency
 5. **Let the process manager handle PIDs** - don't kill manually
+6. **v2.0: Monitor SQLite WAL mode** for proper shutdown
+7. **v2.0: Ensure MCP server** gracefully disconnects from Claude
 
 ## Platform Support
 

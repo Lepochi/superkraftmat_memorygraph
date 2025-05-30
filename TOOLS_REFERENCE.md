@@ -99,14 +99,14 @@ Backend running on `http://localhost:8000`
 
 ### Memory Operations
 ```bash
-# Get all entities
+# Get all entities (v1.0 JSONL, v2.0 SQLite)
 GET /api/entities
 
 # Create entity
 POST /api/entities
 Body: { name, entityType, observations }
 
-# Search entities
+# Search entities (v2.0: Full-text search via SQLite FTS5)
 GET /api/search?q=keyword
 
 # Manage relations
@@ -115,7 +115,7 @@ GET/POST/DELETE /api/relations
 
 ### Framework Endpoints
 ```bash
-# Get intelligent context
+# Get intelligent context (v2.0: Optimized with SQLite queries)
 POST /api/framework/context
 Body: { query, options }
 
@@ -123,10 +123,10 @@ Body: { query, options }
 POST /api/framework/analyze
 Body: { input }
 
-# Get system stats
+# Get system stats (v2.0: Direct from SQLite)
 GET /api/framework/stats
 
-# Optimize memory
+# Optimize memory (v2.0: SQLite VACUUM and indexes)
 POST /api/framework/optimize
 ```
 
@@ -367,11 +367,17 @@ kill -9 [PID]
 
 ### Memory System Issues
 ```bash
-# Validate memory file
+# v1.0: Validate JSONL file
 claude "Validate @memory/data/memory.jsonl"
 
-# Backup memory
+# v2.0: Validate SQLite database
+sqlite3 memory/data/memory.db "PRAGMA integrity_check;"
+
+# Backup memory (v1.0)
 cp memory/data/memory.jsonl memory/data/backup-$(date +%Y%m%d).jsonl
+
+# Backup memory (v2.0)
+sqlite3 memory/data/memory.db ".backup memory/backups/backup-$(date +%Y%m%d).db"
 ```
 
 ## 📝 Quick Reference Card

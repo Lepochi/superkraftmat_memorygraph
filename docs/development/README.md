@@ -6,6 +6,8 @@
 - Node.js (v18 or higher)
 - npm (v9 or higher)
 - Git
+- SQLite3 (v2.0 requirement)
+- TypeScript (v5.x for MCP server development)
 - Docker (optional, for containerized development)
 
 ### Initial Setup
@@ -32,7 +34,7 @@
    npm run dev
    ```
 
-This will start both frontend (port 3000) and backend (port 8000) servers.
+This will start both frontend (port 5173) and backend (port 8000) servers.
 
 ## 📁 Project Structure Explained
 
@@ -45,14 +47,22 @@ This will start both frontend (port 3000) and backend (port 8000) servers.
 ### Backend (`/backend`)
 - **Express.js** REST API server
 - **MCP integration** for Claude Desktop
-- **Memory management** with JSON storage
+- **Memory management** (v1.0: JSONL, v2.0: SQLite)
 - **WebSocket support** for real-time updates
+- **v2.0**: SQLite service layer with connection pooling
 
 ### Memory (`/memory`)
-- **JSON-based storage** for knowledge graph
+- **v1.0**: JSONL-based storage for knowledge graph
+- **v2.0**: SQLite database with FTS5 search
 - **Schema validation** for data integrity
-- **Backup and versioning** system
-- **Migration scripts** for schema updates
+- **Backup system** (JSONL copies → SQLite backups)
+- **Migration scripts** for v1.0 → v2.0 transition
+
+### MCP Server (`/mcp-server`) - v2.0
+- **TypeScript** implementation
+- **Direct SQLite** integration
+- **Optimized** for 100K+ entities
+- **Claude Desktop** compatible
 
 ## 🔧 Development Workflow
 
@@ -106,6 +116,12 @@ npm run test:frontend
 
 # Run tests in watch mode
 npm run test:watch
+
+# v2.0: Test SQLite migrations
+npm run test:migration
+
+# v2.0: Test MCP server
+npm run test:mcp
 ```
 
 ### Test Structure
@@ -123,7 +139,13 @@ npm run test:watch
 ### Performance
 - **Frontend**: Lighthouse audits
 - **Backend**: Request timing and memory usage
-- **Memory system**: Data access patterns
+- **Memory system**: 
+  - v1.0: JSONL file access patterns
+  - v2.0: SQLite query performance, index usage
+- **v2.0 Targets**: 
+  - Handle 100K+ entities
+  - Sub-100ms search queries
+  - Efficient context retrieval
 
 ## 🚀 Deployment
 
@@ -173,6 +195,9 @@ See [Enterprise Guide](enterprise.md) for production deployment instructions.
 1. **Port conflicts**: Change ports in `.env` file
 2. **Memory file locked**: Restart development server
 3. **Dependencies out of sync**: Run `npm run setup` again
+4. **v2.0: SQLite locked**: Check for hanging connections
+5. **v2.0: Migration fails**: Validate JSONL format first
+6. **v2.0: MCP server issues**: Check TypeScript compilation
 
 ### Getting Help
 - Check existing issues on GitHub

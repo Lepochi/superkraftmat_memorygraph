@@ -5,10 +5,15 @@
  * Handles cleanup of zombie processes and provides process management utilities
  */
 
-const { exec, spawn } = require('child_process');
-const fs = require('fs').promises;
-const path = require('path');
-const os = require('os');
+import { exec, spawn } from 'child_process';
+import fs from 'fs/promises';
+import path from 'path';
+import os from 'os';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Configuration
 const CONFIG = {
@@ -349,13 +354,8 @@ Examples:
   }
 }
 
-// Run if called directly
-if (require.main === module) {
-  main().catch(console.error);
-}
-
 // Export for use as module
-module.exports = {
+export {
   cleanupZombies,
   killPort,
   killProcess,

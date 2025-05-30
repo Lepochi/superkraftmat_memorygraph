@@ -12,6 +12,8 @@ This project and everyone participating in it is governed by our Code of Conduct
 - Node.js 18.x or higher
 - Git
 - Claude Desktop (for testing MCP integration)
+- SQLite3 (v2.0 uses SQLite for performance and scalability)
+- TypeScript 5.x (custom MCP server in TypeScript)
 
 ### Setting Up Your Development Environment
 
@@ -182,10 +184,10 @@ Before submitting your PR, ensure:
 ## 🎯 Areas We Need Help
 
 ### High Priority
-- Performance optimization for large datasets
-- Mobile-responsive UI improvements
-- Additional test coverage
-- Documentation improvements
+- SQLite migration implementation (Phase 2)
+- Custom MCP server development (Phase 3)
+- Performance optimization for 100K+ entities
+- Additional test coverage for v2.0 features
 
 ### Good First Issues
 Look for issues tagged with `good first issue` - these are perfect for newcomers!

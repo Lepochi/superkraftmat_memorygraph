@@ -1,4 +1,4 @@
-# Superkraftmat Memory System Context
+# Superkraftmat Memory System Context v2.0
 
 ## 🎯 Business Purpose
 
@@ -7,120 +7,191 @@ The Superkraftmat Memory System addresses the critical challenge of context loss
 - Wasted time on repetitive explanations
 - Inconsistent responses due to missing context
 - Friction in the development workflow
+- Performance limitations with growing data
 
-### Solution
-A persistent knowledge graph that maintains:
-- Business intelligence (company goals, products, relationships)
-- Project momentum (current work, blockers, progress)
-- Operational context (technical details, procedures)
+### Solution Evolution
+**v1.0**: Basic persistent knowledge graph with file storage
+**v2.0**: High-performance system with intelligent memory management
+- SQLite database for 100x faster queries
+- Custom MCP server for native Claude integration
+- Smart memory with importance scoring and decay
+- Canvas UI for intuitive knowledge management
 
 ### Key Users
 1. **Primary**: Superkraftmat (Leonard) - Solo developer/founder
 2. **Future**: Development team members
-3. **Indirect**: Claude and other AI assistants
+3. **AI Systems**: Claude (primary), GPT-4, other LLMs
+4. **Enterprise**: Partner companies and suppliers
 
-## 📊 Business Requirements
+## 📊 Business Requirements v2.0
 
 ### Core Capabilities
-1. **Context Persistence**: Maintain knowledge across chat sessions
-2. **Intelligent Retrieval**: Load relevant context based on current task
-3. **Pattern Learning**: Improve based on usage patterns
-4. **Team Scalability**: Support multiple users (future)
+1. **Performance**: Handle 10,000+ entities without lag
+2. **Intelligence**: Smart context loading based on relevance
+3. **Integration**: Native Claude Desktop experience
+4. **Scalability**: Multi-user support with conflict resolution
 
 ### Success Metrics
-- 80% reduction in context explanation time
-- Zero critical context loss between sessions
-- Seamless integration with Claude Desktop
-- Sub-second context retrieval
+- 90% reduction in context explanation time
+- < 10ms query response time
+- Zero data conflicts between interfaces
+- 100% context accuracy
 
-## 🏗️ Technical Overview
+## 🏗️ Technical Architecture v2.0
 
-### Architecture Pattern
-**Three-Tier Intelligent System**:
-1. **Data Layer**: JSONL-based knowledge graph
-2. **API Layer**: Express.js REST API with MCP integration
-3. **UI Layer**: Vanilla JavaScript with Apple-inspired design
+### Three-Layer Architecture
+```
+┌─────────────────────────────────────────────────────────┐
+│                 Presentation Layer                       │
+│  Canvas UI (5173) | Claude Desktop | Future Mobile App  │
+└─────────────────────────────────────────────────────────┘
+                           ↓
+┌─────────────────────────────────────────────────────────┐
+│                  Application Layer                       │
+│  MCP Server (3000) | REST API (8000) | GraphQL (Future) │
+└─────────────────────────────────────────────────────────┘
+                           ↓
+┌─────────────────────────────────────────────────────────┐
+│                     Data Layer                           │
+│              SQLite Database (memory.db)                 │
+└─────────────────────────────────────────────────────────┘
+```
 
-### Technology Choices
-- **Node.js**: Consistency across stack, Claude Code familiarity
-- **JSONL Storage**: Simple, version-controllable, human-readable
-- **MCP Protocol**: Direct integration with Claude Desktop
-- **Vanilla JS**: No framework overhead, maximum flexibility
+### Technology Stack v2.0
+- **Database**: SQLite with better-sqlite3
+- **MCP Server**: TypeScript + @modelcontextprotocol/sdk
+- **Backend**: Node.js + Express + TypeORM
+- **Frontend**: Vanilla JS + Canvas Components
+- **Testing**: Jest + 90%+ coverage target
 
-### Performance Requirements
-- Context loading: < 100ms
-- API response time: < 50ms
-- Memory file size: Optimized for < 10MB
-- Concurrent users: Support 5+ (future)
+### Performance Architecture
+- **Indexes**: Optimized for common queries
+- **Caching**: In-memory hot data
+- **Connection Pooling**: Efficient resource usage
+- **Async Operations**: Non-blocking throughout
 
-## 🧠 Domain Knowledge
+## 🧠 Enhanced Domain Model
 
-### Core Concepts
+### Core Tables
+```sql
+-- Entity storage with metadata
+entities (
+  id INTEGER PRIMARY KEY,
+  name TEXT UNIQUE NOT NULL,
+  type TEXT NOT NULL,
+  metadata JSON,
+  importance REAL DEFAULT 50.0,
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP,
+  accessed_at TIMESTAMP,
+  access_count INTEGER DEFAULT 0
+)
 
-#### Entities
-- **Definition**: Named objects in the knowledge graph
-- **Types**: Person, Company, Project, System, etc.
-- **Properties**: name, entityType, observations[]
+-- Relationships with strength
+relations (
+  id INTEGER PRIMARY KEY,
+  from_id INTEGER REFERENCES entities(id),
+  to_id INTEGER REFERENCES entities(id),
+  type TEXT NOT NULL,
+  strength REAL DEFAULT 1.0,
+  metadata JSON,
+  created_at TIMESTAMP
+)
 
-#### Relations
-- **Definition**: Connections between entities
-- **Structure**: from -> relationType -> to
-- **Examples**: "implements", "uses", "manages"
+-- Observations with importance
+observations (
+  id INTEGER PRIMARY KEY,
+  entity_id INTEGER REFERENCES entities(id),
+  content TEXT NOT NULL,
+  importance REAL DEFAULT 50.0,
+  timestamp TIMESTAMP,
+  source TEXT
+)
+```
 
-#### Observations
-- **Definition**: Facts or notes about an entity
-- **Purpose**: Store evolving knowledge
-- **Format**: Array of strings, timestamped internally
+### Intelligence Features
+1. **Importance Scoring**: 0-100 based on:
+   - Access frequency
+   - Recency of access
+   - Manual importance flags
+   - Relationship connections
 
-#### Framework Tiers
-1. **Tier 1 - Business Intelligence**: Always loaded
-2. **Tier 2 - Project Momentum**: Contextually loaded
-3. **Tier 3 - Operational Context**: On-demand
+2. **Temporal Decay**: 
+   - Recent memories weighted higher
+   - Configurable decay rates
+   - Override for permanent memories
 
-### Business Rules
-1. **Entity Names**: Must be unique across the graph
-2. **Relations**: Must reference existing entities
-3. **Observations**: Append-only (no editing history)
-4. **Context Loading**: Based on relevance scoring
+3. **Smart Loading**:
+   - Predictive based on patterns
+   - Context-aware filtering
+   - Token optimization
 
-### Terminology Glossary
-- **MCP**: Model Context Protocol (Claude Desktop integration)
-- **Knowledge Graph**: Network of entities and relationships
-- **Context Window**: Available tokens for AI processing
-- **Beast Mode**: Highly optimized Claude Code workflow
-- **Tiered Retrieval**: Intelligent context loading system
+## 🔄 Integration Architecture
 
-## 🔄 Integration Points
+### Claude Desktop (Custom MCP)
+```typescript
+// Custom MCP server provides:
+- getMemories(context: string): Memory[]
+- updateMemory(entity: Entity): void
+- searchMemories(query: string): Memory[]
+- getRelatedMemories(entity: string, depth: number): Memory[]
+```
 
-### Claude Desktop
-- Configuration via `claude_desktop_config.json`
-- MCP server at `~/superkraft_memory/mcp-server`
-- Filesystem access to `.claude/` directory
+### Web UI Integration
+- Real-time sync via WebSocket
+- Optimistic updates
+- Conflict resolution
+- Offline capability
 
-### Development Workflow
-1. Claude reads context from this system
-2. Developer updates knowledge during work
-3. System learns patterns from usage
-4. Next session starts with optimized context
+## 📈 Migration Path
 
-## 📈 Future Vision
+### Phase 1 → Phase 2 (Current)
+1. Export JSONL to migration format
+2. Create SQLite schema
+3. Import with data validation
+4. Verify data integrity
 
-### Phase 1 (Current)
-- Single-user memory system
-- Manual context updates
-- Basic pattern recognition
+### Backwards Compatibility
+- One-time migration only
+- No dual-system maintenance
+- Clean cutover approach
 
-### Phase 2 (Next)
-- Team collaboration features
-- Automatic context extraction
-- Advanced pattern learning
+## 🚀 Future Roadmap
 
-### Phase 3 (Future)
-- Multi-model support (GPT, Gemini, etc.)
-- Enterprise deployment
-- API marketplace for memory plugins
+### Near Term (3-6 months)
+- SQLite implementation
+- Custom MCP server
+- Performance optimization
+- Team features
+
+### Medium Term (6-12 months)
+- Multi-LLM support
+- Advanced analytics
+- Plugin system
+- Mobile app
+
+### Long Term (12+ months)
+- Enterprise features
+- SaaS offering
+- API marketplace
+- AI training integration
+
+## 🔐 Security Considerations
+
+### Data Protection
+- Encryption at rest
+- Secure API endpoints
+- Role-based access
+- Audit logging
+
+### Privacy
+- Local-first storage
+- No cloud dependency
+- User-controlled sharing
+- GDPR compliance ready
 
 ---
 
-*Last Updated: May 29, 2025*
+*Last Updated: May 29, 2025*  
+*Version: 2.0 (In Development)*  
 *Primary Contact: leonard@superkraftmat.no*

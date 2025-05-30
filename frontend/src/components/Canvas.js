@@ -17,7 +17,6 @@ export class Canvas {
     init() {
         this.setupCanvas();
         this.bindEvents();
-        this.animate();
     }
     
     setupCanvas() {
@@ -34,6 +33,7 @@ export class Canvas {
             width: 100%;
             height: 100%;
             cursor: grab;
+            user-select: none;
         `;
         
         this.viewport = document.createElement('div');
@@ -114,8 +114,12 @@ export class Canvas {
     handleZoom(e) {
         e.preventDefault();
         
-        const delta = e.deltaY * -0.001;
-        const newScale = Math.min(Math.max(0.1, this.scale + delta), 3);
+        // Use a smaller multiplier for smoother zooming
+        const delta = e.deltaY * -0.0005;
+        const newScale = Math.min(Math.max(0.2, this.scale + delta), 2);
+        
+        // Don't zoom if the change is too small (prevents jittery behavior)
+        if (Math.abs(newScale - this.scale) < 0.001) return;
         
         const rect = this.container.getBoundingClientRect();
         const x = e.clientX - rect.left;
@@ -133,7 +137,10 @@ export class Canvas {
     handleMouseDown(e) {
         if (e.button !== 0) return;
         
-        if (e.target === this.container || e.target.closest('.canvas-viewport-wrapper')) {
+        // Only start dragging if clicking on the canvas background, not on entities
+        if ((e.target === this.container || e.target.closest('.canvas-viewport-wrapper')) 
+            && !e.target.closest('.canvas-entity')) {
+            e.preventDefault();
             this.isDragging = true;
             this.dragStart = {
                 x: e.clientX - this.translate.x,
@@ -157,7 +164,9 @@ export class Canvas {
     }
     
     updateTransform() {
-        this.viewport.style.transform = `translate(${this.translate.x}px, ${this.translate.y}px) scale(${this.scale})`;
+        requestAnimationFrame(() => {
+            this.viewport.style.transform = `translate(${this.translate.x}px, ${this.translate.y}px) scale(${this.scale})`;
+        });
     }
     
     centerCanvas() {
@@ -260,14 +269,13 @@ export class Canvas {
     }
     
     updateAllConnections() {
-        this.connections.forEach((_, key) => {
-            this.updateConnection(key);
+        requestAnimationFrame(() => {
+            this.connections.forEach((_, key) => {
+                this.updateConnection(key);
+            });
         });
     }
     
-    animate() {
-        requestAnimationFrame(() => this.animate());
-    }
     
     clear() {
         this.entities.forEach(entity => {
@@ -345,8 +353,9 @@ class CanvasEntity {
         
         this.element.style.cssText = `
             position: absolute;
-            width: 200px;
+            width: 220px;
             min-height: 80px;
+            max-height: 140px;
             background: ${colors.bg};
             border: 2px solid ${colors.border};
             border-radius: 12px;
@@ -357,11 +366,13 @@ class CanvasEntity {
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
             z-index: 10;
             user-select: none;
+            overflow: hidden;
         `;
         
         this.element.innerHTML = `
             <div class="entity-header" style="margin-bottom: 8px;">
-                <div style="font-weight: 600; color: #f0f6fc; font-size: 14px; margin-bottom: 4px;">
+                <div style="font-weight: 600; color: #f0f6fc; font-size: 14px; margin-bottom: 4px; 
+                     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                     ${this.data.name}
                 </div>
                 <div style="font-size: 11px; color: #8b949e; text-transform: capitalize;">
@@ -370,7 +381,8 @@ class CanvasEntity {
             </div>
             ${this.data.observations && this.data.observations.length > 0 ? `
                 <div class="entity-preview" style="font-size: 11px; color: #8b949e; line-height: 1.4; 
-                     max-height: 40px; overflow: hidden; text-overflow: ellipsis;">
+                     max-height: 45px; overflow: hidden; text-overflow: ellipsis;
+                     display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
                     ${this.data.observations[0]}
                 </div>
             ` : ''}
@@ -417,8 +429,7 @@ class CanvasEntity {
     
     bindEvents() {
         this.element.addEventListener('mousedown', (e) => this.handleMouseDown(e));
-        document.addEventListener('mousemove', (e) => this.handleMouseMove(e));
-        document.addEventListener('mouseup', (e) => this.handleMouseUp(e));
+        // Mouse move and up are now handled in handleMouseDown for better control
     }
     
     handleMouseDown(e) {
@@ -427,28 +438,41 @@ class CanvasEntity {
         }
         
         e.stopPropagation();
+        e.preventDefault();
         this.isDragging = true;
         
-        const rect = this.element.getBoundingClientRect();
-        const canvasRect = this.canvas.container.getBoundingClientRect();
-        
+        // Store the current position as the starting point
         this.dragOffset = {
-            x: (e.clientX - canvasRect.left) / this.canvas.scale - this.position.x,
-            y: (e.clientY - canvasRect.top) / this.canvas.scale - this.position.y
+            x: e.clientX,
+            y: e.clientY
         };
+        this.startPosition = { ...this.position };
         
         this.element.style.zIndex = '12';
         this.element.style.cursor = 'grabbing';
+        this.element.style.transition = 'none'; // Disable transitions while dragging
+        
+        // Add window-level listeners for better dragging
+        this.mouseMoveHandler = (e) => this.handleMouseMove(e);
+        this.mouseUpHandler = (e) => this.handleMouseUp(e);
+        window.addEventListener('mousemove', this.mouseMoveHandler);
+        window.addEventListener('mouseup', this.mouseUpHandler);
     }
     
     handleMouseMove(e) {
         if (!this.isDragging) return;
         
-        const canvasRect = this.canvas.container.getBoundingClientRect();
-        const x = (e.clientX - canvasRect.left - this.canvas.translate.x) / this.canvas.scale - this.dragOffset.x;
-        const y = (e.clientY - canvasRect.top - this.canvas.translate.y) / this.canvas.scale - this.dragOffset.y;
+        e.preventDefault();
         
-        this.setPosition(x, y);
+        // Calculate the delta from the start position
+        const deltaX = (e.clientX - this.dragOffset.x) / this.canvas.scale;
+        const deltaY = (e.clientY - this.dragOffset.y) / this.canvas.scale;
+        
+        // Apply the delta to the start position
+        const newX = this.startPosition.x + deltaX;
+        const newY = this.startPosition.y + deltaY;
+        
+        this.setPosition(newX, newY);
         this.canvas.updateAllConnections();
     }
     
@@ -458,6 +482,13 @@ class CanvasEntity {
         this.isDragging = false;
         this.element.style.cursor = 'move';
         this.element.style.zIndex = '10';
+        this.element.style.transition = ''; // Re-enable transitions
+        
+        // Remove window-level listeners
+        if (this.mouseMoveHandler) {
+            window.removeEventListener('mousemove', this.mouseMoveHandler);
+            window.removeEventListener('mouseup', this.mouseUpHandler);
+        }
         
         if (this.canvas.onEntityMoved) {
             this.canvas.onEntityMoved(this.data.name, this.position);
@@ -475,18 +506,19 @@ class CanvasEntity {
     }
     
     getConnectionPoint(type) {
-        const rect = this.element.getBoundingClientRect();
-        const canvasRect = this.canvas.canvas.getBoundingClientRect();
+        // Use position directly instead of getBoundingClientRect for more accurate positioning
+        const elementWidth = 220; // Width of entity box
+        const elementHeight = this.element.offsetHeight || 80;
         
         if (type === 'input') {
             return {
-                x: rect.left - canvasRect.left,
-                y: rect.top - canvasRect.top + rect.height / 2
+                x: this.position.x,
+                y: this.position.y + elementHeight / 2
             };
         } else {
             return {
-                x: rect.right - canvasRect.left,
-                y: rect.top - canvasRect.top + rect.height / 2
+                x: this.position.x + elementWidth,
+                y: this.position.y + elementHeight / 2
             };
         }
     }

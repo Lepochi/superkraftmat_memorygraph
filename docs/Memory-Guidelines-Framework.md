@@ -1,8 +1,8 @@
-# Memory Guidelines Framework
+# Memory Guidelines Framework v2.0
 
 ## Overview
 
-This framework provides a structured approach to AI memory management, specifically designed to eliminate context window waste and repetitive explanations. Based on research into AI memory optimization best practices, it implements a three-tiered information architecture that prioritizes the most frequently accessed information while maintaining comprehensive business context.
+This framework provides a structured approach to AI memory management, specifically designed to eliminate context window waste and repetitive explanations. Version 2.0 enhances the original framework with SQLite-powered intelligence, importance scoring, and temporal decay algorithms. It implements a three-tiered information architecture that automatically prioritizes the most relevant information while maintaining comprehensive business context.
 
 ## Problem Statement
 

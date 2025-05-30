@@ -1,21 +1,23 @@
 import { defineConfig } from 'vite';
-import path from 'path';
+import { fileURLToPath, URL } from 'node:url';
 
 export default defineConfig({
-  root: path.resolve(__dirname, './'),
+  root: './',
   publicDir: '../public',
   build: {
     outDir: 'dist',
     emptyOutDir: true,
     rollupOptions: {
       input: {
-        main: path.resolve(__dirname, 'index.html')
+        main: './index.html'
       }
     }
   },
   server: {
+    host: 'localhost',
     port: 5173,
-    open: true,
+    strictPort: true,
+    open: false,
     cors: true,
     proxy: {
       '/api': {
