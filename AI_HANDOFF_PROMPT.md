@@ -1,169 +1,168 @@
-# AI Session Handoff Prompt
+# 🤖 AI Handoff Prompt - Complete Context Transfer
 
-Copy and paste this prompt at the start of your next AI session to maintain full context:
+## 🎯 **USE THIS PROMPT FOR SEAMLESS CONTEXT TRANSFER**
+
+Copy and paste this entire section when starting a new Claude session:
 
 ---
 
-## Initial Context Loading Instructions
+**CONTEXT SETUP PROMPT:**
 
-I'm working on the Superkraftmat Memory System v2.0. Please start by:
+I'm continuing work on the Superkraftmat Memory System v2.0 project. This is a high-performance knowledge graph memory system with SQLite backend, real-time WebSocket collaboration, and Canvas UI visualization.
 
-1. **Read these critical context files in order:**
-   - `/CLAUDE.md` - Project overview and task tracking
-   - `/ROADMAP.md` - Complete project roadmap and phases
-   - `/SESSION_HANDOFF.md` - Latest session summary and current state
-   - `/docs/context/CURRENT_STATE.md` - System architecture details
-   - `/docs/context/CODING_STANDARDS.md` - Code style guidelines
+**ESSENTIAL SETUP ACTIONS - Execute these immediately:**
 
-2. **Use your MCP tools to analyze the memory database:**
+1. **Read primary context file**: 
    ```
-   Use the searchMemories tool to find entities related to:
-   - "Phase 4"
-   - "API Integration"
-   - "Frontend Integration"
-   - "Optimistic"
+   Read /Users/lepochi/superkraft_memory/CLAUDE.md
    ```
 
-3. **Check current implementation status:**
-   - Review `/backend/src/routes/v2/memory.js` for v2 API implementation
-   - Review `/frontend/src/api/memoryApiV2.js` for frontend integration
-   - Check git status to see uncommitted changes
+2. **Read project roadmap**:
+   ```
+   Read /Users/lepochi/superkraft_memory/ROADMAP.md  
+   ```
 
-## Current Project State Summary
+3. **Read documentation guide**:
+   ```
+   Read /Users/lepochi/superkraft_memory/DOCUMENTATION_GUIDE.md
+   ```
 
-**Completed Phases:**
-- ✅ Phase 1: Foundation & Canvas UI (100%)
-- ✅ Phase 2: SQLite Database Migration (100%)
-- ✅ Phase 3: MCP Server Development (100%)
-- 🚧 Phase 4: API & Integration Layer (85%)
-  - ✅ 4.1: REST API v2 implementation
-  - ✅ 4.2: Frontend integration with optimistic updates
-  - 🚧 4.3: Testing & validation (75% complete)
-  - ⏳ WebSocket support
-  - ⏳ Conflict resolution UI
+4. **Check current system status**:
+   ```
+   Bash curl http://localhost:8000/health
+   Bash curl http://localhost:8000/api/v2/memory/entities | jq '.entities | length'
+   ```
 
-**Latest Achievements (May 30, 2025):**
-- **Phase 4.3**: Built comprehensive testing infrastructure for v2 API
-- **Testing Suite**: Created 18 Jest test cases with 11/18 passing
-- **Performance Validated**: <10ms query performance for all tested endpoints
-- **Repository Integration**: Fixed metadata parsing and method signatures
-- **Dual-Mode Support**: Tests work with both JSONL and SQLite backends
+**CURRENT PROJECT STATUS (June 1, 2025):**
+- ✅ **Phase 4 COMPLETE**: All features working (34 entities, real-time WebSocket, Canvas UI)
+- ✅ **Critical Issue RESOLVED**: Frontend connection fixed with Vite proxy configuration
+- 🎯 **Current Priority**: Phase 5.1 Repository cleanup and optimization
+- 📊 **System**: Fully functional with automated testing validation
 
-**Database Stats:**
-- 40+ entities (including Phase 4.3 testing entities)
-- 35+ relations
-- 470+ observations
-- SQLite database at `/memory/database/superkraft.db`
+**KEY FACTS:**
+- Database: SQLite with 34 entities, 418 observations, 27 relations
+- Backend: Express.js on port 8000 (requires USE_SQLITE=true)
+- Frontend: Vite dev server on port 5173 with proxy configuration
+- Features: Real-time collaboration, Canvas UI, CRUD operations, API v1/v2 switching
+- Architecture: Express.js + SQLite + Vanilla JS + TypeScript MCP server
 
-## Next Steps to Continue
+**IMMEDIATE NEXT TASKS:**
+- Repository cleanup: Remove bloat, old files, duplicate documentation
+- Documentation consolidation: Eliminate duplicate content across .md files
+- File structure optimization: Organize for better maintainability
+- Prepare for Phase 5 intelligence features
 
-1. **Complete Phase 4.3 Testing (Priority: High)**
-   - Fix remaining 7/18 v2 API test edge cases
-   - Add v1/v2 integration compatibility tests
-   - Performance benchmarks with 10K+ entities
-   - Load testing for concurrent operations
-   - Repository method unit tests
-
-2. **WebSocket Implementation (Priority: Medium)**
-   - Install Socket.io dependencies
-   - Create WebSocket server in backend
-   - Implement real-time event broadcasting
-   - Update frontend to listen for changes
-   - Test multi-client synchronization
-
-3. **Phase 5 Preparation (Priority: Low)**
-   - Intelligence layer planning
-   - Performance optimization roadmap
-   - Conflict resolution UI for concurrent edits
-
-## Important Instructions for AI
-
-### 1. **Always Update Documentation**
-After completing ANY task:
-- Update the checkbox [x] in CLAUDE.md
-- Add implementation details under the task
-- Update progress percentages
-- Update SESSION_HANDOFF.md with your changes
-
-### 2. **Use Tools Frequently**
-- Use `mcp__mcp-omnisearch__*` tools for research
-- Use `mcp__mcp-sequentialthinking-tools__sequentialthinking_tools` for planning
-- Use TodoWrite to track your tasks
-- Search the codebase before making changes
-
-### 3. **Update Memory Database**
-When completing significant features:
-- Create entities for new concepts/features
-- Add observations about implementation details
-- Create relations to existing entities
-- Use the pattern in `/scripts/update-memory-phase4.cjs`
-
-### 4. **Maintain Code Quality**
-- Follow existing patterns in the codebase
-- Keep v1 API compatibility
-- Add comments for complex logic
-- Test changes before marking complete
-
-### 5. **Git Workflow**
-- Current branch: `ui-enhancement-backup`
-- Do NOT commit unless explicitly asked
-- Keep track of modified files
-- Update .gitignore if adding new patterns
-
-## Quick Commands Reference
-
+**If servers aren't running, start with:**
 ```bash
-# Start development environment
-cd /Users/lepochi/superkraft_memory
-./start-all.sh
-
-# Run backend only
-cd backend && USE_SQLITE=true npm run dev
-
-# Run frontend only  
-cd frontend && npm run dev
-
-# Test v2 API
-cd backend && node tests/test-v2-api.js
-
-# Check database
-sqlite3 memory/database/superkraft.db ".tables"
-
-# View logs
-tail -f /tmp/server.log
-
-# MCP server commands
-cd mcp-server
-npm run build  # Build TypeScript
-npm run dev    # Run in development mode
+cd /Users/lepochi/superkraft_memory/backend && USE_SQLITE=true npm run dev &
+cd /Users/lepochi/superkraft_memory/frontend && npm run dev &
 ```
 
-## File Structure Overview
+**Verification that system is working:**
+- Frontend at http://localhost:5173 should show 34 entities in Canvas UI
+- Real-time collaboration works across multiple browser tabs
+- All CRUD operations functional
+
+Please confirm you've read the context files and understand the current project status before proceeding.
+
+---
+
+## 📋 **Detailed Technical Context**
+
+### **Project Architecture**
+- **Name**: Superkraftmat Memory System v2.0
+- **Purpose**: High-performance knowledge graph for Claude Desktop with real-time collaboration
+- **Status**: Phase 4 complete, all features functional, ready for cleanup and optimization
+
+### **Technology Stack**
+- **Backend**: Node.js + Express.js + SQLite + Socket.io
+- **Frontend**: Vite + Vanilla JavaScript + Canvas API + Socket.io-client  
+- **Database**: SQLite with WAL mode, 64MB cache, optimized for <10ms queries
+- **MCP Server**: TypeScript + @modelcontextprotocol/sdk
+- **Testing**: Jest (backend) + Puppeteer (frontend automation)
+
+### **Critical File Structure**
 ```
 /Users/lepochi/superkraft_memory/
-├── backend/src/
-│   ├── routes/v2/memory.js    # v2 API implementation
-│   ├── repositories/          # Data access layer
-│   └── database/             # SQLite schema and manager
-├── frontend/src/
-│   ├── api/memoryApiV2.js    # Dual-version API client
-│   ├── app.js                # Main app with optimistic updates
-│   └── styles/main.css       # Including animation styles
-├── mcp-server/               # Claude Desktop integration
-├── memory/database/          # SQLite database file
-└── docs/                     # All documentation
+├── CLAUDE.md                    # PRIMARY CONTEXT (read first)
+├── ROADMAP.md                   # Project roadmap and phases
+├── SESSION_HANDOFF.md           # Session transfer instructions
+├── DOCUMENTATION_GUIDE.md       # File purpose clarification
+├── backend/
+│   ├── src/server.js           # Main server with WebSocket
+│   ├── src/routes/v2/memory.js # v2 API endpoints
+│   └── src/repositories/       # Data access layer
+├── frontend/
+│   ├── src/app.js              # Main UI logic
+│   ├── src/api/memoryApiV2.js  # API client with WebSocket
+│   └── vite.config.js          # Proxy configuration (CRITICAL)
+├── memory/database/
+│   └── superkraft.db           # SQLite database
+└── mcp-server/                 # Claude Desktop integration
 ```
 
-## Final Reminders
+### **Critical Configuration**
+- **Environment**: `USE_SQLITE=true` required for backend
+- **Ports**: Backend (8000), Frontend (5173)
+- **Database**: 34 entities, 418 observations, 27 relations
+- **WebSocket**: Socket.io v4.8.1 for real-time collaboration
+- **Proxy**: Vite proxies `/api` and `/health` to backend (solves CORS)
 
-1. **Read context files FIRST** - Don't skip this step
-2. **Update .md files as you work** - Not just at the end
-3. **Test your changes** - Use the test files provided
-4. **Ask for clarification** - If requirements are unclear
-5. **Think step by step** - Use sequential thinking tool
+### **Recent Major Achievements**
+1. **Frontend Connection Issue Resolved**: Implemented Vite proxy configuration
+2. **Real-time Collaboration**: WebSocket multi-tab synchronization working
+3. **Complete Testing**: Automated Puppeteer test suite validates all features
+4. **Performance Optimized**: <10ms queries, smooth Canvas with 34+ entities
+5. **Documentation Updated**: All status reflects current working state
 
-Ready to continue building the Superkraftmat Memory System! 🚀
+### **Known Working Features**
+- ✅ Entity CRUD operations (create, read, update, delete)
+- ✅ Real-time multi-tab synchronization 
+- ✅ Canvas UI with drag-and-drop
+- ✅ API version switching (v1/v2)
+- ✅ WebSocket connection indicators
+- ✅ Optimistic UI updates with rollback
+- ✅ Search and filtering
+- ✅ Performance metrics and monitoring
+
+### **Immediate Priorities for Next Session**
+
+#### **Phase 5.1: Repository Cleanup (HIGH PRIORITY)**
+1. **File Analysis**: Identify and catalog all files for cleanup assessment
+2. **Remove Debug Files**: Delete test-*.html files and temporary debugging scripts
+3. **Documentation Cleanup**: Consolidate duplicate content across .md files
+4. **Structure Optimization**: Organize directories for better maintainability
+5. **Dependency Audit**: Remove unused packages and optimize bundle sizes
+
+#### **Repository Bloat Identified**
+- Multiple test-*.html files (debug-console.html, test-simple-fetch.html, etc.)
+- Duplicate information across CLAUDE.md, ROADMAP.md, SESSION_HANDOFF.md
+- Old debugging scripts and temporary files
+- Inconsistent naming conventions
+
+### **Success Criteria for Handoff**
+- [ ] All context files read and understood
+- [ ] Current system status verified (34 entities loading)
+- [ ] Servers running and functional
+- [ ] Next phase priorities clear
+- [ ] Ready to begin repository cleanup
+
+### **Emergency Recovery**
+If system appears broken:
+1. Check environment: `USE_SQLITE=true`
+2. Restart servers with proper commands
+3. Verify database file exists at `/memory/database/superkraft.db`
+4. Test direct API endpoints with curl
+5. Check Vite proxy configuration in `/frontend/vite.config.js`
 
 ---
 
-*End of handoff prompt - paste everything above into your next session*
+## 🚨 **CRITICAL SUCCESS FACTORS**
+
+1. **Read CLAUDE.md first** - Contains complete project context
+2. **Verify system is working** - 34 entities should display in frontend
+3. **Understand current priority** - Repository cleanup, not new features
+4. **Follow established patterns** - Use existing tools and conventions
+5. **Maintain working state** - Don't break current functionality
+
+**This system is production-ready and fully functional. Focus on cleanup and optimization for sustainable development.**
