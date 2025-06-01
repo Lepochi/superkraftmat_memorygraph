@@ -1,6 +1,11 @@
 // Import the API module (v2 with v1 compatibility)
 import { MemoryAPI } from './api/memoryApiV2.js';
 
+// Make sure it's available globally (memoryApiV2.js should already do this, but double-check)
+if (!window.memoryAPI) {
+    window.memoryAPI = MemoryAPI;
+}
+
 // Import the framework
 import '../framework.js';
 
@@ -16,18 +21,18 @@ window.addEventListener('DOMContentLoaded', () => {
     const apiVersion = urlParams.get('api') || 'v2'; // Default to v2
     
     if (apiVersion === 'v1' || apiVersion === 'v2') {
-        MemoryAPI.setApiVersion(apiVersion);
+        window.memoryAPI.setApiVersion(apiVersion);
         console.log(`📡 Using API ${apiVersion}`);
     }
     
     // Check API health
-    MemoryAPI.checkHealth()
+    window.memoryAPI.checkHealth()
         .then(health => {
             console.log('✅ API is healthy:', health);
             
             // If v2, also get stats
             if (apiVersion === 'v2') {
-                return MemoryAPI.getStats();
+                return window.memoryAPI.getStats();
             }
         })
         .then(stats => {

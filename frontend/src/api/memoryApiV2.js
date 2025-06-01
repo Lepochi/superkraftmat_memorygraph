@@ -6,8 +6,12 @@ import { io } from 'socket.io-client';
 
 class MemoryAPIV2 {
     constructor() {
-        this.baseURL = 'http://localhost:8000/api';
+        // Use relative URL for Vite proxy, or absolute URL for direct access
+        this.baseURL = window.location.hostname === 'localhost' && window.location.port === '5173' 
+            ? '/api'  // Use Vite proxy
+            : 'http://localhost:8000/api';  // Direct backend access
         this.timeout = 5000; // 5 second timeout
+        
         this.apiVersion = 'v2'; // Default to v2, can be changed to 'v1' for legacy
         this._entityNameToIdMap = new Map(); // Cache for name->id mapping
         this._entityIdToNameMap = new Map(); // Cache for id->name mapping
@@ -181,9 +185,9 @@ class MemoryAPIV2 {
         } catch (error) {
             clearTimeout(timeoutId);
             if (error.name === 'AbortError') {
-                throw new Error('Request timeout - backend server might not be running');
+                throw new Error(`Request timeout after ${this.timeout}ms - backend server might not be running`);
             }
-            throw error;
+            throw new Error(`Network error: ${error.message}`);
         }
     }
 
@@ -481,9 +485,10 @@ class MemoryAPIV2 {
     // Check health
     async checkHealth() {
         try {
-            const healthUrl = this.apiVersion === 'v2' 
-                ? `${this.baseURL}/health` 
-                : `${this.baseURL}/health`;
+            // Health endpoint is at root level, not under /memory
+            const healthUrl = this.baseURL.startsWith('/api') 
+                ? '/health'  // Use proxy
+                : 'http://localhost:8000/health';  // Direct backend
                 
             const response = await this.fetchWithTimeout(healthUrl);
             
@@ -501,10 +506,20 @@ class MemoryAPIV2 {
     // Convert v2 entity to v1 format for UI compatibility
     convertV2EntityToV1(v2Entity) {
         const metadata = v2Entity.metadata || {};
+        
+        // Create observations array from description and metadata
+        const observations = [];
+        if (v2Entity.description && v2Entity.description.trim()) {
+            observations.push(v2Entity.description);
+        }
+        if (metadata.observations && Array.isArray(metadata.observations)) {
+            observations.push(...metadata.observations);
+        }
+        
         return {
             name: v2Entity.name,
             entityType: v2Entity.type,
-            observations: metadata.observations || [],
+            observations: observations,
             // Keep v2 fields for future use
             _v2: {
                 id: v2Entity.id,

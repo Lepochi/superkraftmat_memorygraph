@@ -73,8 +73,11 @@ if (USE_SQLITE) {
   memoryService = getMemoryService(MEMORY_PATH);
 }
 
-// Security middleware
-app.use(helmet());
+// Security middleware - relaxed for development
+app.use(helmet({
+  contentSecurityPolicy: process.env.NODE_ENV === 'production' ? undefined : false,
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 
 // CORS configuration
 const corsOptions = {

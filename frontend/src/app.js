@@ -15,7 +15,11 @@ class MemoryUI {
     init() {
         this.bindEvents();
         this.setupRealtimeEvents();
-        this.loadData();
+        
+        // Wait a bit for modules to load, then load data
+        setTimeout(() => {
+            this.loadData();
+        }, 100);
     }
 
     bindEvents() {
@@ -128,6 +132,11 @@ class MemoryUI {
 
     async loadData() {
         try {
+            // Check if memoryAPI is available
+            if (!window.memoryAPI) {
+                throw new Error('memoryAPI not available');
+            }
+            
             // Check if backend is available
             await window.memoryAPI.checkHealth();
             
