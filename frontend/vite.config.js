@@ -38,6 +38,7 @@ export default defineConfig({
     allowedHosts: [
       'localhost',
       '127.0.0.1',
+      'superkraftmatmemorygraph-production-493c.up.railway.app',
       '*.railway.app',
       '*.up.railway.app'
     ]
