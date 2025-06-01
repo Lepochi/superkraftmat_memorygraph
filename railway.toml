@@ -1,9 +1,8 @@
 [build]
 builder = "nixpacks"
-buildCommand = "cd backend && npm ci --omit=dev"
 
 [deploy]
-startCommand = "cd backend && npm start"
+startCommand = "npm start"
 
 [environments.production.variables]
 USE_SQLITE = "true"
