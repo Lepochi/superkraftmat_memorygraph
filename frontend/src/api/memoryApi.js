@@ -1,7 +1,9 @@
 // Memory API Service
 class MemoryAPI {
     constructor() {
-        this.baseURL = 'http://localhost:8000/api';
+        this.baseURL = import.meta.env.VITE_API_URL 
+            ? `${import.meta.env.VITE_API_URL}/api`
+            : 'http://localhost:8000/api';
         this.timeout = 5000; // 5 second timeout
     }
 

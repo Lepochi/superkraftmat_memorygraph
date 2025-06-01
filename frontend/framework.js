@@ -5,7 +5,9 @@
 
 class MemoryFramework {
     constructor() {
-        this.baseUrl = 'http://localhost:8000/api/framework';
+        this.baseUrl = import.meta.env.VITE_API_URL 
+            ? `${import.meta.env.VITE_API_URL}/api/framework`
+            : 'http://localhost:8000/api/framework';
         this.isEnabled = false;
         this.currentContext = null;
         this.init();
