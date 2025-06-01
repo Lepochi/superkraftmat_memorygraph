@@ -1,0 +1,15 @@
+[build]
+builder = "nixpacks"
+buildCommand = "cd backend && npm install"
+
+[deploy]
+startCommand = "cd backend && npm start"
+
+[environments.production.variables]
+USE_SQLITE = "true"
+NODE_ENV = "production"
+SQLITE_PATH = "/app/memory/database/superkraft.db"
+CORS_ORIGIN = "https://$RAILWAY_PUBLIC_DOMAIN"
+
+[environments.production.volumes]
+memory_data = "/app/memory"

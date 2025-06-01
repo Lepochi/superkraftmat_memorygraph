@@ -143,4 +143,9 @@ memory/data/*.json
 .dockerignore
 
 # Checkpoints directory
-.checkpoints/
+.checkpoints/*.log
+
+# Claude Multi-Agent System
+.claude-agents/state/
+.claude-agents/logs/
+../worktrees/

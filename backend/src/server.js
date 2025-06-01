@@ -23,7 +23,7 @@ const PORT = process.env.PORT || 8000;
 const io = new Server(server, {
   cors: {
     origin: process.env.NODE_ENV === 'production' 
-      ? process.env.CORS_ORIGIN || 'http://localhost:5173'
+      ? [process.env.CORS_ORIGIN || 'https://*.railway.app', 'http://localhost:5173']
       : true,
     credentials: true,
     methods: ['GET', 'POST']
@@ -133,7 +133,7 @@ module.exports = { app, server, memoryService, repositoryManager, io };
 
 // Start server only if not in test mode
 if (process.env.NODE_ENV !== 'test') {
-  server.listen(PORT, () => {
+  server.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Memory API server running on port ${PORT}`);
     console.log(`📊 Storage: ${USE_SQLITE ? 'SQLite database' : 'JSONL file'}`);
     console.log(`📁 Path: ${USE_SQLITE ? SQLITE_PATH : MEMORY_PATH}`);
