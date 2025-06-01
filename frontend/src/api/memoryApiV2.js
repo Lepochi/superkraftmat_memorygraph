@@ -6,10 +6,12 @@ import { io } from 'socket.io-client';
 
 class MemoryAPIV2 {
     constructor() {
-        // Use relative URL for Vite proxy, or absolute URL for direct access
-        this.baseURL = window.location.hostname === 'localhost' && window.location.port === '5173' 
-            ? '/api'  // Use Vite proxy
-            : 'http://localhost:8000/api';  // Direct backend access
+        // Use environment variable in production, or proxy in development
+        this.baseURL = import.meta.env.VITE_API_URL 
+            ? `${import.meta.env.VITE_API_URL}/api`  // Production: use deployed backend
+            : (window.location.hostname === 'localhost' && window.location.port === '5173' 
+                ? '/api'  // Development: use Vite proxy
+                : 'http://localhost:8000/api');  // Fallback: direct backend access
         this.timeout = 5000; // 5 second timeout
         
         this.apiVersion = 'v2'; // Default to v2, can be changed to 'v1' for legacy
@@ -41,7 +43,9 @@ class MemoryAPIV2 {
         }
 
         try {
-            this.socket = io('http://localhost:8000', {
+            // Use environment variable for WebSocket in production
+            const wsURL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+            this.socket = io(wsURL, {
                 transports: ['websocket', 'polling'],
                 timeout: 5000,
                 forceNew: true,
