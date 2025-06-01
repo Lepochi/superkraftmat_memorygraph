@@ -7,11 +7,19 @@ import { io } from 'socket.io-client';
 class MemoryAPIV2 {
     constructor() {
         // Use environment variable in production, or proxy in development
+        console.log('🔧 Environment check:', {
+            VITE_API_URL: import.meta.env.VITE_API_URL,
+            hostname: window.location.hostname,
+            port: window.location.port
+        });
+        
         this.baseURL = import.meta.env.VITE_API_URL 
             ? `${import.meta.env.VITE_API_URL}/api`  // Production: use deployed backend
             : (window.location.hostname === 'localhost' && window.location.port === '5173' 
                 ? '/api'  // Development: use Vite proxy
                 : 'http://localhost:8000/api');  // Fallback: direct backend access
+                
+        console.log('🔧 Base URL set to:', this.baseURL);
         this.timeout = 5000; // 5 second timeout
         
         this.apiVersion = 'v2'; // Default to v2, can be changed to 'v1' for legacy
