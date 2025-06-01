@@ -30,7 +30,38 @@ const schemas = {
     })).min(1).required()
   }),
 
-  entityName: Joi.string().min(1).max(255).required()
+  entityName: Joi.string().min(1).max(255).required(),
+
+  updateObservations: Joi.object({
+    observations: Joi.array().items(Joi.string()).min(1).required()
+  }),
+
+  // v2 schemas
+  createEntity: Joi.object({
+    name: Joi.string().min(1).max(255).required(),
+    type: Joi.string().min(1).max(50).required(),
+    metadata: Joi.object().optional()
+  }),
+
+  updateEntity: Joi.object({
+    name: Joi.string().min(1).max(255).optional(),
+    type: Joi.string().min(1).max(50).optional(),
+    importance: Joi.number().min(0).max(100).optional(),
+    metadata: Joi.object().optional()
+  }),
+
+  createRelation: Joi.object({
+    sourceId: Joi.string().required(),
+    targetId: Joi.string().required(),
+    type: Joi.string().min(1).max(50).required(),
+    strength: Joi.number().min(0).max(100).optional(),
+    metadata: Joi.object().optional()
+  }),
+
+  createObservation: Joi.object({
+    content: Joi.string().min(1).required(),
+    importance: Joi.number().min(0).max(100).optional()
+  })
 };
 
 // Validation middleware factory

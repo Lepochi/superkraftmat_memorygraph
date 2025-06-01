@@ -110,11 +110,48 @@ class EntityRepository extends BaseRepository {
     /**
      * Search entities by name or description
      */
-    search(query, limit = 50) {
-        return this.preparedStatements.search.all({
-            search: `%${query}%`,
+    search(query, limitOrOptions = 50) {
+        // Handle both old style (query, limit) and new style (query, options)
+        const limit = typeof limitOrOptions === 'number' ? limitOrOptions : (limitOrOptions.limit || 50);
+        const searchTerm = query.includes('%') ? query : `%${query}%`;
+        
+        const entities = this.preparedStatements.search.all({
+            search: searchTerm,
             limit
         });
+
+        return entities.map(entity => ({
+            ...entity,
+            metadata: this.parseJSON(entity.metadata)
+        }));
+    }
+
+    /**
+     * Override base findById to parse metadata
+     */
+    findById(id) {
+        const entity = super.findById(id);
+        return entity ? { ...entity, metadata: this.parseJSON(entity.metadata) } : null;
+    }
+
+    /**
+     * Override base findAll to parse metadata
+     */
+    findAll(limit = 100, offset = 0) {
+        const entities = super.findAll(limit, offset);
+        return entities.map(entity => ({
+            ...entity,
+            metadata: this.parseJSON(entity.metadata)
+        }));
+    }
+
+    /**
+     * Find entity by name
+     */
+    findByName(name) {
+        const stmt = this.db.prepare('SELECT * FROM entities WHERE name = ?');
+        const entity = stmt.get(name);
+        return entity ? { ...entity, metadata: this.parseJSON(entity.metadata) } : null;
     }
 
     /**

@@ -30,7 +30,7 @@ describe('Memory API Server', () => {
   beforeAll(() => {
     // Require server after mocks are set up
     const serverModule = require('../src/server');
-    app = serverModule.app || serverModule;
+    app = serverModule.app;
   });
 
   afterAll((done) => {

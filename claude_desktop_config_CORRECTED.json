@@ -1,0 +1,37 @@
+{
+  "mcpServers": {
+    "superkraft-memory": {
+      "command": "node",
+      "args": [
+        "/Users/lepochi/superkraft_memory/mcp-server/dist/index.js"
+      ],
+      "env": {}
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/Users/lepochi/Desktop",
+        "/Users/lepochi/Downloads",
+        "/Users/lepochi/Library/CloudStorage/GoogleDrive-leonard@superkraftmat.no/Delte disker/Superkraftmat-AI-Database",
+        "/Users/lepochi/superkraft_memory"
+      ]
+    },
+    "wix-mcp-remote": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@wix/mcp-remote",
+        "https://mcp.wix.com/sse"
+      ]
+    },
+    "webresearch": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@mzxrai/mcp-webresearch@latest"
+      ]
+    }
+  }
+}

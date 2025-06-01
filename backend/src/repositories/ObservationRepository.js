@@ -103,6 +103,13 @@ class ObservationRepository extends BaseRepository {
     }
 
     /**
+     * Find observations by entity (alias for getHistory for API consistency)
+     */
+    findByEntity(entityId, options = {}) {
+        return this.getHistory(entityId, options);
+    }
+
+    /**
      * Get recent observations across all entities
      */
     getRecent(limit = 50) {

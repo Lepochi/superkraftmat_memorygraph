@@ -57,6 +57,28 @@ class RepositoryManager {
     }
 
     /**
+     * Get repository by name
+     */
+    getRepository(name) {
+        this.ensureInitialized();
+        const repoMap = {
+            'entity': this.repositories.entities,
+            'entities': this.repositories.entities,
+            'relation': this.repositories.relations,
+            'relations': this.repositories.relations,
+            'observation': this.repositories.observations,
+            'observations': this.repositories.observations
+        };
+        
+        const repo = repoMap[name.toLowerCase()];
+        if (!repo) {
+            throw new Error(`Repository '${name}' not found`);
+        }
+        
+        return repo;
+    }
+
+    /**
      * Ensure repositories are initialized
      */
     ensureInitialized() {

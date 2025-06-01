@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimistic Updates Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #0d1117;
+            color: #c9d1d9;
+        }
+        .instructions {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        .test-scenario {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        .success { color: #3fb950; }
+        .error { color: #f85149; }
+        .info { color: #58a6ff; }
+        button {
+            background: #238636;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 8px;
+            margin-top: 8px;
+        }
+        button:hover {
+            background: #2ea043;
+        }
+        button.danger {
+            background: #da3633;
+        }
+        button.danger:hover {
+            background: #f85149;
+        }
+    </style>
+</head>
+<body>
+    <h1>Optimistic Updates Test Scenarios</h1>
+    
+    <div class="instructions">
+        <h2>Instructions</h2>
+        <p>Test the optimistic update behavior by:</p>
+        <ol>
+            <li>Opening the main app in another tab</li>
+            <li>Using the buttons below to simulate various scenarios</li>
+            <li>Watching how the UI responds immediately and handles errors</li>
+        </ol>
+    </div>
+
+    <div class="test-scenario">
+        <h3>Scenario 1: Normal Operation</h3>
+        <p>Test creating and deleting entities with the server running normally.</p>
+        <button onclick="window.open('../frontend/index.html?api=v2', '_blank')">Open App with v2 API</button>
+        <p class="info">✓ Entities should appear immediately with shimmer effect</p>
+        <p class="info">✓ Success notification after server confirms</p>
+    </div>
+
+    <div class="test-scenario">
+        <h3>Scenario 2: Server Delay Simulation</h3>
+        <p>Add artificial delay to see optimistic updates in action.</p>
+        <button onclick="enableDelay()">Enable 3s Delay</button>
+        <button onclick="disableDelay()">Disable Delay</button>
+        <div id="delayStatus" style="margin-top: 8px;"></div>
+        <p class="info">✓ Entity appears immediately while waiting for server</p>
+        <p class="info">✓ Shimmer animation during wait</p>
+    </div>
+
+    <div class="test-scenario">
+        <h3>Scenario 3: Server Error Simulation</h3>
+        <p>Force server errors to test rollback behavior.</p>
+        <button onclick="enableErrors()">Enable Errors</button>
+        <button onclick="disableErrors()">Disable Errors</button>
+        <div id="errorStatus" style="margin-top: 8px;"></div>
+        <p class="info">✓ Entity appears then disappears on error</p>
+        <p class="info">✓ Error notification shows</p>
+    </div>
+
+    <div class="test-scenario">
+        <h3>Scenario 4: Network Offline</h3>
+        <p>Test behavior when completely offline.</p>
+        <button onclick="goOffline()" class="danger">Go Offline</button>
+        <button onclick="goOnline()">Go Online</button>
+        <div id="networkStatus" style="margin-top: 8px;"></div>
+        <p class="info">✓ Immediate rollback when offline</p>
+        <p class="info">✓ Clear error message</p>
+    </div>
+
+    <script>
+        // Intercept fetch to add delays/errors for testing
+        const originalFetch = window.fetch;
+        let delayEnabled = false;
+        let errorsEnabled = false;
+        let offlineMode = false;
+
+        window.fetch = async function(...args) {
+            if (offlineMode) {
+                throw new Error('Network request failed - offline mode');
+            }
+
+            if (delayEnabled) {
+                await new Promise(resolve => setTimeout(resolve, 3000));
+            }
+
+            if (errorsEnabled && args[0].includes('/entities') && args[1]?.method === 'POST') {
+                const response = new Response(JSON.stringify({ 
+                    error: 'Simulated server error for testing' 
+                }), {
+                    status: 500,
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                return response;
+            }
+
+            return originalFetch.apply(this, args);
+        };
+
+        function enableDelay() {
+            delayEnabled = true;
+            document.getElementById('delayStatus').innerHTML = 
+                '<span class="success">✓ 3 second delay enabled</span>';
+        }
+
+        function disableDelay() {
+            delayEnabled = false;
+            document.getElementById('delayStatus').innerHTML = 
+                '<span class="info">Delay disabled</span>';
+        }
+
+        function enableErrors() {
+            errorsEnabled = true;
+            document.getElementById('errorStatus').innerHTML = 
+                '<span class="error">✓ Server errors enabled for POST /entities</span>';
+        }
+
+        function disableErrors() {
+            errorsEnabled = false;
+            document.getElementById('errorStatus').innerHTML = 
+                '<span class="info">Errors disabled</span>';
+        }
+
+        function goOffline() {
+            offlineMode = true;
+            document.getElementById('networkStatus').innerHTML = 
+                '<span class="error">✓ Offline mode - all requests will fail</span>';
+        }
+
+        function goOnline() {
+            offlineMode = false;
+            document.getElementById('networkStatus').innerHTML = 
+                '<span class="success">✓ Online - requests work normally</span>';
+        }
+
+        // Show initial status
+        document.getElementById('delayStatus').innerHTML = '<span class="info">Normal speed</span>';
+        document.getElementById('errorStatus').innerHTML = '<span class="info">No errors</span>';
+        document.getElementById('networkStatus').innerHTML = '<span class="success">Online</span>';
+    </script>
+</body>
+</html>

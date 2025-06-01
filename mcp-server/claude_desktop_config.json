@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "superkraft-memory": {
+      "command": "node",
+      "args": [
+        "/Users/lepochi/superkraft_memory/mcp-server/dist/index.js"
+      ],
+      "env": {},
+      "capabilities": {
+        "tools": true
+      }
+    }
+  }
+}
