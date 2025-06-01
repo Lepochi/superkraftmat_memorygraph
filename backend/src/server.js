@@ -23,7 +23,11 @@ const PORT = process.env.PORT || 8000;
 const io = new Server(server, {
   cors: {
     origin: process.env.NODE_ENV === 'production' 
-      ? [process.env.CORS_ORIGIN || 'https://*.railway.app', 'http://localhost:5173']
+      ? [
+          process.env.CORS_ORIGIN || 'https://superkraftmatmemorygraph-production-493c.up.railway.app',
+          'http://localhost:5173',
+          /https:\/\/.*\.railway\.app$/
+        ]
       : true,
     credentials: true,
     methods: ['GET', 'POST']
@@ -82,7 +86,11 @@ app.use(helmet({
 // CORS configuration
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production' 
-    ? process.env.CORS_ORIGIN || 'http://localhost:5173'
+    ? [
+        process.env.CORS_ORIGIN || 'https://superkraftmatmemorygraph-production-493c.up.railway.app',
+        'http://localhost:5173',
+        /https:\/\/.*\.railway\.app$/
+      ]
     : true,
   credentials: true,
   optionsSuccessStatus: 200
