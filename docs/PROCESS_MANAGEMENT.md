@@ -4,6 +4,8 @@
 
 The Superkraftmat Memory System includes robust process management to prevent zombie processes and ensure clean startup/shutdown. In v2.0, this extends to managing the SQLite database connections and the custom MCP server process.
 
+**Production Deployment**: The system is now also deployed on Railway platform with Docker containerization, providing both local development and cloud production environments.
+
 ## Quick Start
 
 ### Starting the System

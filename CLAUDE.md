@@ -51,11 +51,19 @@ PORT=8000               # Backend port
 SQLITE_PATH=../memory/database/superkraft.db  # DB path
 ```
 
-### ✅ **System Status (June 1, 2025)**
-1. **Frontend Connection**: RESOLVED - Vite proxy configuration implemented
-2. **Real-time Features**: WORKING - WebSocket multi-tab sync confirmed  
-3. **CRUD Operations**: WORKING - Create, read, update, delete all functional
-4. **Performance**: OPTIMAL - 34 entities, <10ms query times, smooth Canvas UI
+### ✅ **System Status (June 2, 2025)**
+1. **Railway Deployment**: COMPLETE - Both backend and frontend successfully deployed
+2. **Frontend-Backend Connection**: RESOLVED - All CORS and API URL issues fixed
+3. **Real-time Features**: WORKING - WebSocket connection established on production
+4. **Database Issue**: CRITICAL - Deployed backend has empty database (0 entities)
+5. **CRUD Operations**: PARTIAL - Read works, Create throws internal server error
+6. **Local Development**: FULLY FUNCTIONAL - All 34 entities accessible locally
+
+### 🚀 **Production URLs**
+- **Backend API**: `https://superkraftmatmemorygraph-production.up.railway.app`
+- **Frontend UI**: `https://superkraftmatmemorygraph-production-493c.up.railway.app`
+- **Local Backend**: `http://localhost:8000` (for development/debugging)
+- **Local Frontend**: `http://localhost:5173` (with Vite proxy)
 
 ### 📂 **Critical File Locations**
 ```
@@ -334,27 +342,27 @@ curl http://localhost:8000/api/v2/info | grep websocket
 - [ ] Create migration guide for users
 
 ## 🎯 Current Focus
-**Priority**: Phase 5.3 Multi-Agent Claude Code Architecture - Context Monitoring COMPLETE
-**Active Status**: Phase 4 COMPLETE + Multi-Agent Context Monitoring FULLY IMPLEMENTED
-**Status**: Full context monitoring system operational with automatic agent handoffs
+**Priority**: Railway Production Deployment - Database Migration Critical
+**Active Status**: Full-stack deployed on Railway with connection issues resolved
+**Status**: Frontend/Backend operational but empty database needs migration
 **Next Steps**:
-1. ✅ **COMPLETED**: Repository cleanup and organization (Phase 5.1)
-2. ✅ **COMPLETED**: Automated Documentation Framework research and core design (Phase 5.2)
-3. ✅ **COMPLETED**: Multi-agent foundation with tmux integration (Phase 5.3 foundation)
-4. ✅ **COMPLETED**: Context monitoring and automatic agent rotation (Phase 5.3)
-5. **NEXT**: Inter-agent communication protocols and coordination engine
+1. 🔥 **CRITICAL**: Add persistent volume to Railway backend for SQLite database
+2. 🔥 **CRITICAL**: Migrate local SQLite data (34 entities) to deployed backend
+3. 🔧 **DEBUG**: Fix internal server error when creating entities in production
+4. 🔗 **IMPLEMENT**: Hybrid MCP server for Claude Desktop integration
+5. 📦 **OPTIONAL**: Multi-agent inter-communication protocols
 
 ## 📊 Progress Metrics
 - **Phase 2 - Database Layer**: 100% ✅ (SQLite with 34 entities, 418 observations, 27 relations)
 - **Phase 3 - MCP Server**: 100% ✅ (TypeScript integration with Claude Desktop)
 - **Phase 4 - API & Integration**: 100% ✅ (Real-time WebSocket, v2 API, Canvas UI)
-- **Frontend-Backend Connection**: 100% ✅ (Vite proxy resolves all issues)
-- **Real-time Collaboration**: 100% ✅ (Multi-tab sync, CRUD operations working)
-- **Testing Suite**: 100% ✅ (Automated Puppeteer validation)
-- **Documentation**: 90% ✅ (Needs cleanup and consolidation)
-- **Repository Maintenance**: 100% ✅ (Phase 5.1 complete - repository fully cleaned and organized)
-- **Multi-Agent Foundation**: 100% ✅ (Phase 5.3 foundation complete - orchestrator working with tmux)
-- **Context Monitoring System**: 100% ✅ (Phase 5.3 context monitoring - automatic agent rotation operational)
+- **Railway Deployment**: 95% ✅ (Both services deployed, frontend-backend connected)
+- **Production Database**: 0% ⚠️ (Empty database, needs data migration)
+- **Production CRUD**: 25% ⚠️ (Read works, Create fails with internal server error)
+- **Frontend-Backend Connection**: 100% ✅ (All CORS and API URL issues resolved)
+- **Repository Maintenance**: 100% ✅ (Phase 5.1 complete - cleaned and organized)
+- **Multi-Agent Foundation**: 100% ✅ (Orchestrator working with tmux integration)
+- **Hybrid MCP Server**: 0% 📦 (Ready to implement for Claude Desktop)
 
 ## 🔗 Key Files
 - Architecture: `/docs/architecture/README.md`
