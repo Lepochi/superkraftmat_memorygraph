@@ -500,7 +500,7 @@ class MemoryAPIV2 {
             // Health endpoint is at root level, not under /memory
             const healthUrl = this.baseURL.startsWith('/api') 
                 ? '/health'  // Use proxy
-                : 'http://localhost:8000/health';  // Direct backend
+                : `${this.baseURL.replace('/api', '')}/health`;  // Use same base as API
                 
             const response = await this.fetchWithTimeout(healthUrl);
             
