@@ -19,6 +19,34 @@
 ### 🔧 **Dependencies & Tech Stack**
 
 #### Backend (`/backend/`)
+- **Runtime**: Node.js 18+, Express.js
+- **Database**: better-sqlite3, SQLite with WAL mode
+- **Key Dependencies**: better-sqlite3, cors, dotenv, express, express-rate-limit
+
+#### Frontend (`/frontend/`)
+- **Runtime**: Vite dev server with ES modules
+- **Key Dependencies**: axios, socket.io-client#### Backend (`/backend/`)
+- **Runtime**: Node.js 18+, Express.js
+- **Database**: better-sqlite3, SQLite with WAL mode
+- **Key Dependencies**: better-sqlite3, cors, dotenv, express, express-rate-limit
+
+#### Frontend (`/frontend/`)
+- **Runtime**: Vite dev server with ES modules
+- **Key Dependencies**: axios, socket.io-client#### Backend (`/backend/`)
+- **Runtime**: Node.js 18+, Express.js
+- **Database**: better-sqlite3, SQLite with WAL mode
+- **Key Dependencies**: better-sqlite3, cors, dotenv, express, express-rate-limit
+
+#### Frontend (`/frontend/`)
+- **Runtime**: Vite dev server with ES modules
+- **Key Dependencies**: axios, socket.io-client#### Backend (`/backend/`)
+- **Runtime**: Node.js 18+, Express.js
+- **Database**: better-sqlite3, SQLite with WAL mode
+- **Key Dependencies**: better-sqlite3, cors, dotenv, express, express-rate-limit
+
+#### Frontend (`/frontend/`)
+- **Runtime**: Vite dev server with ES modules
+- **Key Dependencies**: axios, socket.io-client#### Backend (`/backend/`)
 - **Runtime**: Node.js 18+, Express.js 4.18.2
 - **Database**: better-sqlite3 v11.10.0
 - **WebSocket**: socket.io v4.8.1 (server)
@@ -380,6 +408,7 @@ curl http://localhost:8000/api/v2/info | grep websocket
 - **Multi-Agent Foundation**: 100% ✅ (Orchestrator working with tmux integration)
 - **Hybrid MCP Server**: 0% 🎯 (Next priority - Claude Desktop integration)
 
+- **6/2/2025**: Task completion: 05fc307 feat: Complete comprehensive repository cleanup and optimization
 ## 🔗 Key Files
 - Architecture: `/docs/architecture/README.md`
 - Roadmap: `/ROADMAP.md`
@@ -504,5 +533,5 @@ curl http://localhost:8000/api/v2/info | grep websocket
 5. ⚠️ Real-time sync between all interfaces (implemented but connection issues)
 
 ---
-*Last Updated: June 1, 2025 - Phase 4 WebSocket Integration Complete (100%) - Known Issue: Frontend Connection*
+*Last Updated: June 2, 2025 - Task completion: a5d8faa fix: Remove final hardcoded localhost reference in health check*
 *Next Review: Fix frontend-backend connection issue ASAP*

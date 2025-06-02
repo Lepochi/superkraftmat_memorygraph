@@ -46,6 +46,7 @@
   "homepage": "https://github.com/superkraftmat/memory-system#readme",
   "type": "module",
   "devDependencies": {
+    "chokidar": "^4.0.3",
     "concurrently": "^8.2.2",
     "eslint": "^8.55.0",
     "eslint-config-standard": "^17.1.0",
