@@ -227,6 +227,11 @@ class DocumentationStateManager {
             const commitLines = recentCommits.trim().split('\n');
             
             commitLines.forEach(line => {
+                // Skip automatic documentation commits to prevent infinite loops
+                if (line.includes('Automatic documentation update')) {
+                    return;
+                }
+                
                 if (line.includes('feat:') || line.includes('fix:') || line.includes('docs:')) {
                     const commitHash = line.split(' ')[0];
                     

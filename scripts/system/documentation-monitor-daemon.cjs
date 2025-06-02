@@ -103,6 +103,9 @@ class DocumentationMonitorDaemon {
         
         // Initial system check
         await this.performSystemCheck();
+        
+        // Keep process alive
+        this.keepAlive();
     }
 
     setupFileWatchers() {
@@ -230,10 +233,12 @@ class DocumentationMonitorDaemon {
             ).trim();
             
             if (commits) {
-                return commits.split('\n').map(line => {
-                    const [hash, ...messageParts] = line.split(' ');
-                    return { hash, message: messageParts.join(' ') };
-                });
+                return commits.split('\n')
+                    .map(line => {
+                        const [hash, ...messageParts] = line.split(' ');
+                        return { hash, message: messageParts.join(' ') };
+                    })
+                    .filter(commit => !commit.message.includes('Automatic documentation update'));
             }
             
             return [];
@@ -334,6 +339,17 @@ Co-Authored-By: Claude <noreply@anthropic.com>`;
         metrics.lastOptimization = new Date().toISOString();
     }
 
+    // Keep the process alive
+    keepAlive() {
+        this.log('Daemon running in background - press Ctrl+C to stop');
+        
+        // Use setInterval to keep process alive
+        this.keepAliveInterval = setInterval(() => {
+            // Empty interval just to keep process running
+            // The real work is done by the other intervals
+        }, 60000); // Check every minute
+    }
+
     // Stop the daemon
     stop() {
         if (!this.isRunning) {
@@ -349,6 +365,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>`;
         if (this.systemCheckInterval) clearInterval(this.systemCheckInterval);
         if (this.gitCheckInterval) clearInterval(this.gitCheckInterval);
         if (this.optimizationInterval) clearInterval(this.optimizationInterval);
+        if (this.keepAliveInterval) clearInterval(this.keepAliveInterval);
         
         // Close file watcher
         if (this.fileWatcher) this.fileWatcher.close();
