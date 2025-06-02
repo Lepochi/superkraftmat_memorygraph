@@ -3,101 +3,100 @@
 ## Current Session Context (June 2, 2025)
 
 ### Active Priority
-**PHASE 8: PERFORMANCE OPTIMIZATION & ENTERPRISE FEATURES**
-- Status: READY TO START (0%)
-- Target: Load testing, caching optimization, enterprise scalability
-- Focus: 10K+ entity performance and advanced features
+**RAILWAY CLI API INTEGRATION & INFRASTRUCTURE OPTIMIZATION**
+- Status: HIGH PRIORITY (MCP Railway tools non-functional)
+- Target: Replace broken MCP tools with Railway CLI API integration
+- Focus: Deployment management, environment variables, service monitoring
 
 ### Session Progress
 - ✅ Phase 1-7: Complete (Database, MCP Server, API, Production, Analytics)
-- ✅ Phase 7: Analytics Dashboard with real-time monitoring complete
-- 🎯 Phase 8: Performance optimization and enterprise features next
-- 📊 Current achievement: Full observability stack operational
+- ✅ **CRITICAL FIX**: Frontend-Supabase connectivity RESOLVED
+- 🚂 **URGENT**: Railway CLI API integration needed (MCP tools broken)
+- 📊 Current achievement: Production system operational with 35 entities
 
 ### Technical Status
-- **Backend**: SQLite + WebSocket + Analytics operational (port 8000)
-- **Frontend**: Vite dev server + Analytics Dashboard operational (port 5173)
+- **Frontend**: Production deployment with Supabase integration ✅ WORKING
+- **Supabase**: 35 entities, 36 relations, direct REST API connection ✅ WORKING
+- **Railway Backend**: SQLite deployment (development/testing only)
 - **MCP Server**: Hybrid 3-backend architecture functional
-- **Production**: Railway + Supabase dual deployment active
+- **Railway MCP Tools**: ❌ NON-FUNCTIONAL (requires CLI API replacement)
 - **Analytics**: Real-time monitoring with comprehensive metrics
-- **Data**: 35 entities, 36 relations, 480 observations with embeddings
 
 ### Key Implementations Completed This Session
-1. **Analytics Service**: Real-time system metrics, performance tracking
-2. **Analytics Dashboard**: Full-screen monitoring interface with live updates
-3. **Performance Tracking**: Query times, semantic search analytics, memory patterns
-4. **Health Monitoring**: Intelligent alerts and system status indicators
-5. **WebSocket Analytics**: Real-time metric broadcasting and activity feed
+1. **Frontend-Supabase Connectivity**: Direct REST API integration with auto-detection
+2. **Smart API Switching**: Production uses Supabase, development uses Railway
+3. **Visual Indicators**: Clear backend indicators (🗄️ Supabase vs 🚂 Railway)
+4. **Production Validation**: 35 entities successfully loading from Supabase
+5. **Error Resolution**: Comprehensive debugging with Puppeteer and MCP tools
 
 ### Next Session Priorities
-1. **HIGH**: Load testing with 10K+ entities performance validation
-2. **HIGH**: Implement intelligent caching for embedding operations
-3. **MEDIUM**: Advanced relationship suggestion algorithms
-4. **MEDIUM**: Multi-user collaboration architecture planning
-5. **LOW**: Enterprise security and access control features
+1. **🚂 CRITICAL**: Railway CLI API integration (replace broken MCP tools)
+   - Documentation: https://docs.railway.com/reference/cli-api
+   - Implement project/service management, environment variables, deployments
+2. **⚡ HIGH**: Performance optimization for 10K+ entities
+3. **🧠 MEDIUM**: Advanced embedding algorithms and caching
+4. **🔗 MEDIUM**: Enhanced relationship suggestion algorithms
+5. **🏢 LOW**: Multi-user collaboration and enterprise features
 
 ### Critical Information for Next Session
-- **Analytics Complete**: Full monitoring stack operational at `/api/v2/analytics/*`
-- **Performance Baseline**: Sub-10ms queries, real-time health monitoring
-- **Dashboard Access**: Analytics button in main UI, full-screen overlay
-- **Metrics Collection**: Automatic system monitoring every 5 seconds
-- **WebSocket Events**: Real-time activity feed with categorized updates
+- **Frontend-Backend**: Production connectivity RESOLVED, 35 entities operational
+- **API Architecture**: Auto-detection between Supabase (production) vs Railway (dev)
+- **Railway Tools**: MCP tools non-functional, CLI API integration required
+- **Supabase Access**: Direct REST API working with anon key authentication
+- **Production URLs**: Frontend at railway.app domain, data in Supabase PostgreSQL
 
 ### Development Context
-- **Phase 8 Focus**: Performance optimization and enterprise scalability
-- **Load Testing**: Stress testing with large datasets (10K+ entities)
-- **Caching Strategy**: Intelligent embedding cache implementation
-- **Enterprise Features**: Multi-user, collaboration, advanced security
-- **Performance Goals**: Maintain sub-10ms with massive scale
+- **Infrastructure Priority**: Railway CLI API integration for deployment management
+- **Production Status**: System operational with direct Supabase integration
+- **Performance Goals**: Optimize for 10K+ entities while maintaining sub-10ms queries
+- **Enterprise Features**: Multi-user, collaboration, advanced security (future)
+- **Architecture**: Hybrid approach with environment-aware API switching
 
 ### New Files Added This Session
-- `backend/src/services/analyticsService.js` - Complete analytics engine ✅
-- `backend/src/routes/v2/analytics.js` - 8 analytics API endpoints ✅
-- `frontend/src/components/AnalyticsDashboard.js` - Full dashboard UI ✅
-- `frontend/src/styles/analytics.css` - Professional dashboard styling ✅
+- `frontend/src/api/supabaseApi.js` - Direct Supabase REST API client ✅
+- Updated `frontend/src/app.js` - Smart API detection and switching ✅
+- Updated `frontend/src/index.js` - Load both Railway and Supabase APIs ✅
+- Updated `Dockerfile` - Build dependencies for SQLite native modules ✅
 
 ### Updated Files This Session
-- `backend/src/routes/index.js` - Added analytics routes integration ✅
-- `backend/src/routes/v2/memory.js` - Added performance tracking to all routes ✅
-- `frontend/src/app.js` - Analytics dashboard integration ✅
-- `frontend/index.html` - Analytics button and CSS inclusion ✅
-- `CLAUDE.md` - Updated progress to Phase 7 complete ✅
+- `CLAUDE.md` - Added Railway CLI API priority and current status ✅
+- `docs/development/session-handoff.md` - Updated with Supabase fix progress ✅
+- `Dockerfile` - Fixed SQLite build dependencies and environment variables ✅
+- Git commits - All changes committed and pushed to production ✅
 
 ## Session Continuity Notes
-- **Phase 7 Analytics**: 100% complete with professional monitoring
-- **All Systems Operational**: Backend, frontend, analytics, production stable
-- **Performance Monitoring**: Real-time system health and metrics tracking
-- **Next Focus**: Performance optimization for enterprise-scale deployment
-- **Documentation**: All progress updated in CLAUDE.md and ROADMAP.md
+- **Critical Fix Complete**: Frontend-Supabase connectivity operational
+- **Production System**: 35 entities, 36 relations successfully loading
+- **API Architecture**: Smart switching between Railway (dev) and Supabase (prod)
+- **Next Priority**: Railway CLI API integration (MCP tools broken)
+- **Documentation**: All progress updated following Memory Guidelines Framework
 
 ## 🎯 **NEXT SESSION QUICK START**
 
-### **Immediate Actions for Phase 8:**
+### **Immediate Actions for Railway CLI API:**
 ```bash
-# Start systems with analytics enabled
-cd backend && USE_SQLITE=true npm run dev
-cd frontend && npm run dev
+# Verify production system is working
+curl -s "https://superkraftmatmemorygraph-production-493c.up.railway.app" | grep "Supabase"
 
-# Test analytics dashboard
-# 1. Open http://localhost:5173
-# 2. Click "📊 Analytics" button
-# 3. Verify real-time monitoring
+# Test Supabase API directly  
+curl -H "apikey: [ANON_KEY]" "https://xthjwtxmlmnwcwvqfiai.supabase.co/rest/v1/entities?select=count"
 
-# Begin load testing preparation
-curl http://localhost:8000/api/v2/analytics/health
+# Begin Railway CLI API implementation
+# Reference: https://docs.railway.com/reference/cli-api
+# Priority: Project management, environment variables, deployments
 ```
 
-### **Performance Optimization Goals:**
-1. **Load Testing**: 10K+ entities with concurrent users
+### **Railway CLI API Integration Goals:**
+1. **Project Management**: List projects, services, deployments
+2. **Environment Variables**: Set/get variables via API instead of MCP
+3. **Deployment Control**: Trigger deployments, monitor status
+4. **Service Management**: Restart services, view logs, scaling
+
+### **Performance Optimization Goals (Post-Railway):**
+1. **Load Testing**: 10K+ entities with concurrent users  
 2. **Caching Layer**: Embedding cache for sub-millisecond searches
 3. **Query Optimization**: Batch processing and indexing
-4. **Memory Management**: Large dataset handling
-
-### **Enterprise Features Planning:**
-1. **Multi-user Collaboration**: Real-time shared editing
-2. **Access Control**: Role-based permissions
-3. **Advanced Security**: Authentication and authorization
-4. **Scalability**: Horizontal scaling architecture
+4. **Enterprise Features**: Multi-user collaboration and security
 
 ## 📊 **Analytics System Overview**
 
@@ -115,4 +114,4 @@ curl http://localhost:8000/api/v2/analytics/health
 - Live activity feed
 - Export functionality
 
-**Phase 7 Complete - Ready for Performance Optimization! ⚡**
+**Frontend-Supabase Integration Complete - Railway CLI API Next Priority! 🚂**

@@ -58,9 +58,9 @@ SQLITE_PATH=../memory/database/superkraft.db  # DB path
 7. **Local Development**: STABLE - 35 entities with complete relationship graph
 
 ### 🚀 **Production URLs**
-- **Railway Backend**: `https://superkraftmatmemorygraph-production.up.railway.app`
-- **Railway Frontend**: `https://superkraftmatmemorygraph-production-493c.up.railway.app`
-- **Supabase Database**: `https://xthjwtxmlmnwcwvqfiai.supabase.co`
+- **Railway Frontend**: `https://superkraftmatmemorygraph-production-493c.up.railway.app` ✅ ACTIVE
+- **Supabase Database**: `https://xthjwtxmlmnwcwvqfiai.supabase.co` ✅ ACTIVE (35 entities, 36 relations)
+- **Railway Backend**: `https://superkraftmatmemorygraph-production.up.railway.app` (SQLite, for dev/testing)
 - **Local Backend**: `http://localhost:8000` (development)
 - **Local Frontend**: `http://localhost:5173` (Vite proxy)
 
@@ -74,8 +74,9 @@ SQLITE_PATH=../memory/database/superkraft.db  # DB path
 └── services/memoryServiceV2.js # v2 business logic
 
 /frontend/src/
-├── api/memoryApiV2.js        # Dual v1/v2 API client with WebSocket
-├── app.js                    # Main UI with real-time event handlers
+├── api/memoryApiV2.js        # Railway backend API client
+├── api/supabaseApi.js        # Direct Supabase REST API client ✅ NEW
+├── app.js                    # Main UI with smart API detection ✅ UPDATED
 └── components/Canvas.js      # Graph visualization
 
 /mcp-server/dist/index.js     # Compiled MCP server
@@ -117,6 +118,25 @@ curl http://localhost:8000/api/v2/info | grep websocket
 - ✅ **Standardized**: Consistent format across all documentation
 
 **Reference**: See `/docs/development/automated-documentation-framework.md` for complete specification
+
+## 🚂 **URGENT: Railway CLI API Integration**
+**Status**: HIGH PRIORITY - MCP Railway tools non-functional  
+**Documentation**: https://docs.railway.com/reference/cli-api  
+**Impact**: Critical for deployment management and environment variable configuration
+
+### **Required Implementation:**
+- Railway CLI API wrapper for project/service management
+- Environment variable management via Railway API
+- Deployment monitoring and log access
+- Service restart and scaling capabilities
+- Replace non-functional MCP Railway tools
+
+### **API Endpoints Needed:**
+- `GET /projects` - List all projects
+- `GET /projects/{id}/services` - List services in project
+- `POST /projects/{id}/services/{serviceId}/variables` - Set environment variables
+- `GET /projects/{id}/services/{serviceId}/deployments` - Get deployment status
+- `POST /projects/{id}/services/{serviceId}/deployments` - Trigger deployments
 
 ## 📋 Implementation Phases & Tasks
 
@@ -386,15 +406,15 @@ curl http://localhost:8000/api/v2/info | grep websocket
 - [ ] Multi-user collaboration features
 
 ## 🎯 Current Focus
-**Priority**: ⚡ **PERFORMANCE OPTIMIZATION & ENTERPRISE FEATURES** - Phase 7 Analytics Complete
-**Active Status**: Analytics Dashboard Complete - Ready for Performance Optimization
-**Status**: Full analytics monitoring operational, real-time performance tracking, all systems functional
+**Priority**: 🔧 **RAILWAY CLI API INTEGRATION & INFRASTRUCTURE OPTIMIZATION**
+**Active Status**: Frontend-Supabase connectivity RESOLVED - Railway tooling next priority
+**Status**: Production system operational with 35 entities, direct Supabase integration working
 **Next Development Phase**:
-1. ⚡ **ACTIVE**: Performance optimization for 10K+ entities and load testing
-2. 🧠 **NEXT**: Advanced embedding algorithms and intelligent caching
-3. 🔗 **NEXT**: Enhanced relationship algorithms and context-aware suggestions
-4. 🏢 **NEXT**: Multi-user collaboration and enterprise features
-5. 🌐 **FUTURE**: AI Fleet integration and distributed agent architecture
+1. 🚂 **HIGH PRIORITY**: Railway CLI API integration (MCP tools non-functional)
+2. ⚡ **ACTIVE**: Performance optimization for 10K+ entities and load testing
+3. 🧠 **NEXT**: Advanced embedding algorithms and intelligent caching
+4. 🔗 **NEXT**: Enhanced relationship algorithms and context-aware suggestions
+5. 🏢 **FUTURE**: Multi-user collaboration and enterprise features
 
 ## 📊 Progress Metrics
 - **Phase 2-7**: 100% ✅ (Database, MCP Server, API, Cleanup, Production, Analytics)
@@ -409,7 +429,7 @@ curl http://localhost:8000/api/v2/info | grep websocket
 - **Multi-Agent Foundation**: 100% ✅ (AI Fleet integration ready)
 - **Backend Performance**: Local SQLite (0ms) → Railway API (145ms) → Supabase (135ms)
 
-**Latest Updates (6/2/2025)**: 🎉 **ANALYTICS DASHBOARD COMPLETE** - Real-time performance monitoring with system health tracking, semantic search analytics, memory usage patterns, and WebSocket-powered live updates. Complete observability stack operational.
+**Latest Updates (6/2/2025)**: 🎉 **FRONTEND-SUPABASE CONNECTIVITY RESOLVED** - Production deployment now connects directly to Supabase backend with 35 entities operational. Auto-detection between Railway/Supabase APIs implemented. Next priority: Railway CLI API integration to replace non-functional MCP tools.
 ## 🔗 Key Files
 - Architecture: `/docs/architecture/README.md`
 - Roadmap: `/ROADMAP.md`

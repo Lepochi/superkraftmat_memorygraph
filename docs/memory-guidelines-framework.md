@@ -4,7 +4,7 @@
 
 This framework provides a structured approach to AI memory management, specifically designed to eliminate context window waste and repetitive explanations. Version 2.0 enhances the original framework with SQLite-powered intelligence, importance scoring, and temporal decay algorithms. It implements a three-tiered information architecture that automatically prioritizes the most relevant information while maintaining comprehensive business context.
 
-**Current Implementation Status (June 2025)**: Production-ready system deployed on Railway platform with local development environment. Supports both local SQLite database and cloud-deployed backend API access.
+**Current Implementation Status (June 2025)**: Production system operational with dual-backend architecture: Railway frontend deployment connecting to Supabase PostgreSQL database (35 entities, 36 relations). Smart API switching between environments with direct REST API integration.
 
 ## Problem Statement
 
@@ -25,53 +25,52 @@ This framework is built on established AI memory management principles:
 
 ## Framework Architecture
 
-### TIER 1: Business Intelligence
-**Always Retrieved** - Core context that forms the foundation of every interaction
+### TIER 1: System Architecture & Infrastructure
+**Always Retrieved** - Core technical context for development continuity
 
-#### Current Status
-- Monthly business situation updates
-- Key performance indicators
-- Current challenges and opportunities
-- Market position and competitive landscape
+#### Current Production Status (June 2, 2025)
+- **Frontend**: Railway deployment with Supabase integration ✅ OPERATIONAL
+- **Backend**: Dual architecture (Railway SQLite + Supabase PostgreSQL)
+- **Data**: 35 entities, 36 relations, direct REST API connectivity
+- **Critical Issue**: Railway MCP tools non-functional, CLI API integration required
 
-#### Strategic Vision
-- Long-term company goals (1-5 years)
-- Mission and core values
-- Growth strategy and targets
-- Market expansion plans
+#### Core Technical Stack
+- **Frontend**: Vite + Vanilla JS with Canvas visualization
+- **Backend**: Node.js + Express with SQLite/PostgreSQL support  
+- **MCP Server**: TypeScript with hybrid 3-backend architecture
+- **Deployment**: Railway frontend + Supabase database integration
 
-#### Product Ecosystem
-- Core product catalog with descriptions
-- Product synergies and use cases
-- Key selling points and target markets
-- Pricing and positioning strategy
+#### API Architecture
+- **Production**: Direct Supabase REST API with auto-detection
+- **Development**: Railway backend with SQLite storage
+- **Smart Switching**: Environment-aware API selection
+- **Authentication**: Supabase anon key for public operations
 
-#### Relationship Map
-- Company role in value chain
-- Farm partnerships and stories
-- Vendor relationships and capabilities
-- B2B customer profiles and needs
+#### Critical URLs & Endpoints
+- **Production Frontend**: `https://superkraftmatmemorygraph-production-493c.up.railway.app`
+- **Supabase Database**: `https://xthjwtxmlmnwcwvqfiai.supabase.co`
+- **Railway CLI API**: `https://docs.railway.com/reference/cli-api` (integration needed)
 
-### TIER 2: Project Momentum
-**Context-Sensitive Retrieval** - Information needed to continue work seamlessly
+### TIER 2: Development Priorities & Progress
+**Context-Sensitive Retrieval** - Current development context and next steps
 
-#### Active Projects
-- Current project stage and status
-- Recent decisions and rationale
-- Next planned steps
-- Key stakeholders and responsibilities
+#### Current Session Status (June 2, 2025)
+- **RESOLVED**: Frontend-Supabase connectivity with 35 entities operational
+- **HIGH PRIORITY**: Railway CLI API integration (MCP tools broken)
+- **NEXT**: Performance optimization for 10K+ entities
+- **FUTURE**: Enterprise features and multi-user collaboration
 
-#### System Implementations
-- Shopify migration progress and timeline
-- Odoo MVP development status
-- Integration requirements and dependencies
-- Technical decisions and architecture
+#### Recent Implementations (Session Completed)
+- **Supabase API Client**: Direct REST API integration (`frontend/src/api/supabaseApi.js`)
+- **Smart API Detection**: Environment-aware switching (`frontend/src/app.js`)
+- **Visual Indicators**: Backend status display (🗄️ Supabase vs 🚂 Railway)
+- **Production Validation**: 35 entities + 36 relations successfully loading
 
-#### Development Context
-- Ongoing code projects and features
-- Technical debt and optimization needs
-- Development tools and preferences
-- Coding standards and practices
+#### Next Session Priorities
+- **Railway CLI API**: Replace non-functional MCP tools with direct API integration
+- **Performance Testing**: Load testing with 10K+ entities and concurrent users
+- **Caching Layer**: Implement intelligent embedding cache for sub-millisecond searches
+- **Enterprise Features**: Multi-user collaboration and advanced security
 
 ### TIER 3: Operational Context
 **On-Demand Retrieval** - Detailed information loaded when specifically needed
