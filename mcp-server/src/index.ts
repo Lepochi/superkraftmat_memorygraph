@@ -7,7 +7,7 @@ import {
   ListToolsRequestSchema,
   McpError,
 } from '@modelcontextprotocol/sdk/types.js';
-import { DatabaseService } from './services/database.js';
+import { HybridDatabaseService } from './services/HybridDatabaseService.js';
 import { ContextAnalyzer } from './services/contextAnalyzer.js';
 import { TokenOptimizer } from './services/tokenOptimizer.js';
 import type { Memory } from './types/memory.js';
@@ -25,8 +25,8 @@ const server = new Server(
   }
 );
 
-// Initialize database service
-const db = new DatabaseService();
+// Initialize hybrid database service
+const db = new HybridDatabaseService();
 
 // Error handling helper
 const handleError = (error: unknown): McpError => {
@@ -350,15 +350,25 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
 // Start the server
 async function main() {
+  // Initialize hybrid database service
+  await db.initialize({
+    preferPerformance: true,  // Prefer local SQLite when available
+    fallbackChain: true       // Enable automatic fallback
+  });
+  
   const transport = new StdioServerTransport();
   await server.connect(transport);
   
-  console.error('Superkraft Memory MCP Server v2.0 started');
+  console.error('🚀 Superkraft Memory MCP Server v2.0 started with hybrid backend');
+  
+  // Log backend status
+  const statusReport = await db.getStatusReport();
+  console.error('\n' + statusReport);
   
   // Graceful shutdown
   process.on('SIGINT', async () => {
-    console.error('Shutting down...');
-    db.close();
+    console.error('🔌 Shutting down...');
+    await db.close();
     await server.close();
     process.exit(0);
   });
