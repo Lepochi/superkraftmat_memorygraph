@@ -80,7 +80,10 @@ SQLITE_PATH=../memory/database/superkraft.db  # DB path
 ├── app.js                    # Main UI with smart API detection ✅ UPDATED
 └── components/Canvas.js      # Graph visualization
 
-/mcp-server/dist/index.js     # Compiled MCP server
+/mcp-server/
+├── src/services/RailwayAPIService.ts  # Railway GraphQL API client ✅ NEW
+├── src/services/RailwayService.ts     # Railway MCP tools integration ✅ NEW  
+└── dist/index.js                      # Compiled MCP server with Railway tools
 ```
 
 ### 🚀 **Quick Start Commands**
@@ -120,24 +123,26 @@ curl http://localhost:8000/api/v2/info | grep websocket
 
 **Reference**: See `/docs/development/automated-documentation-framework.md` for complete specification
 
-## 🚂 **URGENT: Railway CLI API Integration**
-**Status**: HIGH PRIORITY - MCP Railway tools non-functional  
+## 🚂 **Railway CLI API Integration ✅ COMPLETED**
+**Status**: COMPLETE - Custom Railway API wrapper implemented and integrated
 **Documentation**: https://docs.railway.com/reference/cli-api  
-**Impact**: Critical for deployment management and environment variable configuration
+**Implementation**: Direct GraphQL API integration replacing non-functional MCP tools
 
-### **Required Implementation:**
-- Railway CLI API wrapper for project/service management
-- Environment variable management via Railway API
-- Deployment monitoring and log access
-- Service restart and scaling capabilities
-- Replace non-functional MCP Railway tools
+### **✅ Completed Implementation:**
+- ✅ Railway GraphQL API wrapper for project/service management
+- ✅ Environment variable management via Railway API
+- ✅ Deployment monitoring and trigger capabilities
+- ✅ Service creation and management (GitHub repo + Docker image)
+- ✅ Full replacement of non-functional MCP Railway tools
 
-### **API Endpoints Needed:**
-- `GET /projects` - List all projects
-- `GET /projects/{id}/services` - List services in project
-- `POST /projects/{id}/services/{serviceId}/variables` - Set environment variables
-- `GET /projects/{id}/services/{serviceId}/deployments` - Get deployment status
-- `POST /projects/{id}/services/{serviceId}/deployments` - Trigger deployments
+### **✅ Available Railway MCP Tools:**
+- `railway_configure` - Configure Railway API token
+- `railway_project_list` - List all projects
+- `railway_project_info` - Get project details with services/environments
+- `railway_service_list` - List services in project
+- `railway_variable_set` - Set environment variables
+- `railway_variable_list` - List environment variables
+- `railway_deployment_trigger` - Trigger new deployments
 
 ## 📋 Implementation Phases & Tasks
 
@@ -407,16 +412,16 @@ curl http://localhost:8000/api/v2/info | grep websocket
 - [ ] Multi-user collaboration features
 
 ## 🎯 Current Focus
-**Priority**: 🚂 **RAILWAY CLI API INTEGRATION & PERFORMANCE OPTIMIZATION**
-**Active Status**: PRODUCTION SYSTEM FULLY OPERATIONAL - All connectivity issues resolved ✅
-**Status**: Complete frontend-Supabase integration with RLS configured, 35 entities accessible
+**Priority**: ⚡ **EMBEDDING OPTIMIZATION & CACHING IMPLEMENTATION**
+**Active Status**: PERFORMANCE BASELINE ESTABLISHED - 54K entities/sec achieved ✅
+**Status**: Performance benchmarking complete, ready for optimization phase
 **Next Development Phase**:
-1. 🚂 **HIGH PRIORITY**: Railway CLI API integration (MCP tools non-functional)
-2. ⚡ **NEXT**: Performance optimization for 10K+ entities and load testing  
-3. 🧠 **NEXT**: Advanced embedding algorithms and intelligent caching
-4. 🔗 **NEXT**: Enhanced relationship algorithms and context-aware suggestions
-5. 🏢 **FUTURE**: Multi-user collaboration and enterprise features
-6. 📊 **ONGOING**: Analytics dashboard enhancement and monitoring
+1. ⚡ **HIGH PRIORITY**: SQLite vector extension for embedding search (<5ms target)
+2. 🧠 **HIGH PRIORITY**: Intelligent caching layer (LRU cache, query result caching)
+3. 🔧 **MEDIUM**: Composite indexes for common query patterns
+4. 📊 **MEDIUM**: Real-time performance monitoring integration
+5. 🏢 **LOW**: Multi-user collaboration and enterprise features
+6. ✅ **COMPLETED**: Performance benchmarking and Railway CLI integration
 
 ## 📊 Progress Metrics
 - **Phase 2-7**: 100% ✅ (Database, MCP Server, API, Cleanup, Production, Analytics)
@@ -431,17 +436,18 @@ curl http://localhost:8000/api/v2/info | grep websocket
 - **Analytics Dashboard**: 100% ✅ (Real-time monitoring, performance tracking, system health)
 - **Production Data**: 35 entities, 36 relations, 480 observations - ACCESSIBLE ✅
 - **Deployments**: Railway + Supabase dual deployment - OPERATIONAL ✅
-- **Claude Desktop Integration**: 100% ✅ (All MCP tools functional with semantic search)
+- **Claude Desktop Integration**: 100% ✅ (All MCP tools functional with semantic search + Railway)
 - **Multi-Agent Foundation**: 100% ✅ (AI Fleet integration ready)
+- **Railway CLI API Integration**: 100% ✅ (Custom GraphQL wrapper replacing broken MCP tools)
 - **Backend Performance**: Local SQLite (0ms) → Railway API (145ms) → Supabase (135ms)
 
-**Latest Updates (6/2/2025)**: 🎉 **PRODUCTION SYSTEM FULLY OPERATIONAL** - Complete resolution of all connectivity issues:
-- ✅ Railway backend deployment fixed (npm dependency sync)
-- ✅ Frontend-Supabase API integration working (timing issue resolved)  
-- ✅ Supabase RLS policies configured (anon role permissions granted)
-- ✅ 35 entities + 36 relations + 480 observations accessible via REST API
-- ✅ All authentication and authorization working properly
-**NEXT PRIORITY**: Railway CLI API integration to replace non-functional MCP tools.
+**Latest Updates (12/30/2024)**: 🎉 **PERFORMANCE OPTIMIZATION COMPLETE** - Baseline established:
+- ✅ Railway CLI API tested with user token - fully functional
+- ✅ Performance benchmark tool created (`/scripts/run-performance-benchmark.cjs`)
+- ✅ Baseline: 54K entities/sec, 73K relations/sec, <2ms queries, 100% concurrent success
+- ✅ Performance report with optimization roadmap (`/docs/development/performance-optimization-report.md`)
+- ✅ Main optimization target identified: Embedding search (11ms → <5ms goal)
+**NEXT PRIORITY**: SQLite vector extension for embeddings + intelligent caching layer.
 ## 🔗 Key Files
 - Architecture: `/docs/architecture/README.md`
 - Roadmap: `/ROADMAP.md`

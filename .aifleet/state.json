@@ -1,0 +1,38 @@
+[
+  {
+    "branch": "claude-md-optimize",
+    "worktree": "/Users/lepochi/.aifleet/worktrees/superkraft_memory/claude-md-optimize",
+    "session": "ai_claude-md-optimize",
+    "batch_id": "250602-hhbb",
+    "agent": "claude",
+    "created_at": "2025-06-02T08:38:39.783245",
+    "prompt": "Read CLAUDE.md completely. Identify and remove ALL duplicate content, redundant sections, and verbose explanations. Reduce total token \n  count by exactly 25% while preserving all critical information, metrics, and technical details. Focus on: 1) Consolidating duplicate dependency lists 2) Removing\n   repetitive backend/frontend sections 3) Shortening verbose explanations 4) Maintaining all URLs, commands, and status information. When done, use Edit tool to \n  save changes and commit with message 'docs: Optimize CLAUDE.md - 25% token reduction'"
+  },
+  {
+    "branch": "docs-consistency",
+    "worktree": "/Users/lepochi/.aifleet/worktrees/superkraft_memory/docs-consistency",
+    "session": "ai_docs-consistency",
+    "batch_id": "250602-hhbb",
+    "agent": "claude",
+    "created_at": "2025-06-02T08:38:43.558167",
+    "prompt": "Read current-state.md and update ALL outdated information to reflect June 2025 status. Update the 'Last Updated' date, change status from \n  'Phase 2 Starting' to current completion status, and ensure all metrics match CLAUDE.md. Then review ALL other .md files for consistency issues and fix them. \n  Commit changes with message 'docs: Update all documentation to June 2025 status'"
+  },
+  {
+    "branch": "roadmap-structure",
+    "worktree": "/Users/lepochi/.aifleet/worktrees/superkraft_memory/roadmap-structure",
+    "session": "ai_roadmap-structure",
+    "batch_id": "250602-hhbb",
+    "agent": "claude",
+    "created_at": "2025-06-02T08:38:47.125090",
+    "prompt": "Read ROADMAP.md and reorganize it for better clarity. Improve section hierarchy, add missing progress indicators, and ensure all phases \n  align with current CLAUDE.md status. Make the strategic vision clearer and more actionable. Commit with message 'docs: Restructure ROADMAP.md for improved \n  clarity'"
+  },
+  {
+    "branch": "template-enhancement",
+    "worktree": "/Users/lepochi/.aifleet/worktrees/superkraft_memory/template-enhancement",
+    "session": "ai_template-enhancement",
+    "batch_id": "250602-hhbb",
+    "agent": "claude",
+    "created_at": "2025-06-02T08:38:50.637144",
+    "prompt": "Read all files in .claude-agents/config/ directory. Optimize agent template instructions for clearer behavioral conditioning, more \n  specific success criteria, and better task definitions. Ensure each template has specific, measurable goals. Commit with message 'docs: Enhance agent templates \n  for better performance'"
+  }
+]

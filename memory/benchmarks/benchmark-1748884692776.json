@@ -1,0 +1,125 @@
+{
+  "timestamp": "2025-06-02T17:18:12.776Z",
+  "summary": {
+    "entityOperations": {
+      "totalEntities": 500,
+      "totalTime": "17.32",
+      "batchInsertTime": "17.12",
+      "entitiesPerSecond": "28868.50",
+      "avgTimePerEntity": "0.0346"
+    },
+    "relationOperations": {
+      "totalRelations": 1000,
+      "totalTime": "11.75",
+      "relationsPerSecond": "85084.66",
+      "avgTimePerRelation": "0.0118"
+    },
+    "searchPerformance": {
+      "traditional": "0.37ms avg",
+      "byType": "0.20ms avg",
+      "byImportance": "0.17ms avg",
+      "paginated": "0.09ms avg"
+    },
+    "concurrentPerformance": {
+      "users": 5,
+      "operationsPerSecond": "17615.51",
+      "successRate": "100.00%"
+    },
+    "embeddingPerformance": {
+      "storageTime": "0.46ms avg",
+      "searchTime": "10.99ms avg"
+    }
+  },
+  "detailed": {
+    "entityOperations": {
+      "totalEntities": 500,
+      "totalTime": "17.32",
+      "batchInsertTime": "17.12",
+      "entitiesPerSecond": "28868.50",
+      "avgTimePerEntity": "0.0346"
+    },
+    "searchOperations": {
+      "iterations": 10,
+      "traditional": {
+        "count": 10,
+        "avgTime": "0.37",
+        "minTime": "0.10",
+        "maxTime": "2.02",
+        "p50": "0.21",
+        "p95": "2.02",
+        "p99": "2.02",
+        "avgResults": "50.00"
+      },
+      "byType": {
+        "count": 10,
+        "avgTime": "0.20",
+        "minTime": "0.19",
+        "maxTime": "0.22",
+        "p50": "0.20",
+        "p95": "0.22",
+        "p99": "0.22",
+        "avgResults": "100.00"
+      },
+      "byImportance": {
+        "count": 10,
+        "avgTime": "0.17",
+        "minTime": "0.17",
+        "maxTime": "0.19",
+        "p50": "0.17",
+        "p95": "0.19",
+        "p99": "0.19",
+        "avgResults": "99.60"
+      },
+      "paginated": {
+        "count": 10,
+        "avgTime": "0.09",
+        "minTime": "0.09",
+        "maxTime": "0.10",
+        "p50": "0.09",
+        "p95": "0.10",
+        "p99": "0.10",
+        "avgResults": "50.00"
+      }
+    },
+    "relationOperations": {
+      "totalRelations": 1000,
+      "totalTime": "11.75",
+      "relationsPerSecond": "85084.66",
+      "avgTimePerRelation": "0.0118"
+    },
+    "concurrentOperations": {
+      "userCount": 5,
+      "totalTime": "3.52",
+      "totalOperations": 62,
+      "successRate": "100.00",
+      "operationsPerSecond": "17615.51",
+      "avgOperationTime": "0.26"
+    },
+    "embeddingOperations": {
+      "totalEmbeddings": 1000,
+      "storageStats": {
+        "count": 516,
+        "avgTime": "0.46",
+        "minTime": "0.31",
+        "maxTime": "5.97",
+        "p50": "0.34",
+        "p95": "0.51",
+        "p99": "4.36",
+        "avgResults": "N/A"
+      },
+      "searchStats": {
+        "count": 10,
+        "avgTime": "10.99",
+        "minTime": "10.18",
+        "maxTime": "12.82",
+        "p50": "10.86",
+        "p95": "12.82",
+        "p99": "12.82",
+        "avgResults": "N/A"
+      },
+      "embeddingSize": "1536 dimensions",
+      "storageFormat": "JSON array"
+    }
+  },
+  "recommendations": []
+}

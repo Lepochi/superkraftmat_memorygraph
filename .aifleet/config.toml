@@ -1,0 +1,15 @@
+[project]
+name = "superkraft_memory"
+worktree_root = "/Users/lepochi/.aifleet/worktrees/superkraft_memory"
+
+[agent]
+default = "claude"
+claude_flags = "--dangerously-skip-permissions"
+
+[setup]
+credential_files = [ ".env", ".env.local",]
+commands = [ "npm install",]
+quick = false
+
+[tmux]
+prefix = "ai_"

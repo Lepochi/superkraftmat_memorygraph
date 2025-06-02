@@ -10,6 +10,7 @@ import {
 import { HybridDatabaseService } from './services/HybridDatabaseService.js';
 import { ContextAnalyzer } from './services/contextAnalyzer.js';
 import { TokenOptimizer } from './services/tokenOptimizer.js';
+import { RailwayService } from './services/RailwayService.js';
 import type { Memory } from './types/memory.js';
 
 // Initialize server
@@ -27,6 +28,9 @@ const server = new Server(
 
 // Initialize hybrid database service
 const db = new HybridDatabaseService();
+
+// Initialize Railway service
+const railway = new RailwayService();
 
 // Error handling helper
 const handleError = (error: unknown): McpError => {
@@ -148,6 +152,88 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             }
           },
           required: ['id', 'updates']
+        }
+      },
+      // Railway Tools
+      {
+        name: 'railway_configure',
+        description: 'Configure Railway API token for authentication',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            token: { type: 'string', description: 'Railway API token' }
+          },
+          required: ['token']
+        }
+      },
+      {
+        name: 'railway_project_list',
+        description: 'List all projects in your Railway account',
+        inputSchema: {
+          type: 'object',
+          properties: {}
+        }
+      },
+      {
+        name: 'railway_project_info',
+        description: 'Get detailed information about a specific project',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            projectId: { type: 'string', description: 'Project ID' }
+          },
+          required: ['projectId']
+        }
+      },
+      {
+        name: 'railway_service_list',
+        description: 'List all services in a project',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            projectId: { type: 'string', description: 'Project ID' }
+          },
+          required: ['projectId']
+        }
+      },
+      {
+        name: 'railway_variable_set',
+        description: 'Set an environment variable',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            projectId: { type: 'string', description: 'Project ID' },
+            environmentId: { type: 'string', description: 'Environment ID' },
+            name: { type: 'string', description: 'Variable name' },
+            value: { type: 'string', description: 'Variable value' },
+            serviceId: { type: 'string', description: 'Service ID (optional)' }
+          },
+          required: ['projectId', 'environmentId', 'name', 'value']
+        }
+      },
+      {
+        name: 'railway_variable_list',
+        description: 'List environment variables',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            projectId: { type: 'string', description: 'Project ID' },
+            environmentId: { type: 'string', description: 'Environment ID' },
+            serviceId: { type: 'string', description: 'Service ID (optional)' }
+          },
+          required: ['projectId', 'environmentId']
+        }
+      },
+      {
+        name: 'railway_deployment_trigger',
+        description: 'Trigger a new deployment',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            serviceId: { type: 'string', description: 'Service ID' },
+            environmentId: { type: 'string', description: 'Environment ID' }
+          },
+          required: ['serviceId', 'environmentId']
         }
       }
     ]
@@ -335,6 +421,104 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             {
               type: 'text',
               text: JSON.stringify({ success: true, entity: updatedEntity }, null, 2)
+            }
+          ]
+        };
+      }
+
+      // Railway Tools
+      case 'railway_configure': {
+        const { token } = args as any;
+        const result = await railway.configureApiToken(token);
+        
+        return {
+          content: [
+            {
+              type: 'text',
+              text: result.message
+            }
+          ]
+        };
+      }
+
+      case 'railway_project_list': {
+        const projects = await railway.projectList();
+        
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(projects, null, 2)
+            }
+          ]
+        };
+      }
+
+      case 'railway_project_info': {
+        const { projectId } = args as any;
+        const project = await railway.projectInfo(projectId);
+        
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(project, null, 2)
+            }
+          ]
+        };
+      }
+
+      case 'railway_service_list': {
+        const { projectId } = args as any;
+        const services = await railway.serviceList(projectId);
+        
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(services, null, 2)
+            }
+          ]
+        };
+      }
+
+      case 'railway_variable_set': {
+        const { projectId, environmentId, name, value, serviceId } = args as any;
+        const result = await railway.variableSet(projectId, environmentId, name, value, serviceId);
+        
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(result, null, 2)
+            }
+          ]
+        };
+      }
+
+      case 'railway_variable_list': {
+        const { projectId, environmentId, serviceId } = args as any;
+        const variables = await railway.listServiceVariables(projectId, environmentId, serviceId);
+        
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(variables, null, 2)
+            }
+          ]
+        };
+      }
+
+      case 'railway_deployment_trigger': {
+        const { serviceId, environmentId } = args as any;
+        const deployment = await railway.deploymentTrigger(serviceId, environmentId);
+        
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(deployment, null, 2)
             }
           ]
         };
