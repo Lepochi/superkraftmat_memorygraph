@@ -1029,9 +1029,9 @@ class MemoryUI {
             
             // Check which API we're using and call the appropriate method
             let data;
-            if (window.memoryAPI.fetchAllEntities) {
+            if (window.memoryAPI.fetchMemory) {
                 // SupabaseAPI
-                data = await window.memoryAPI.fetchAllEntities();
+                data = await window.memoryAPI.fetchMemory();
             } else if (window.memoryAPI.getMemory) {
                 // MemoryAPIV2
                 data = await window.memoryAPI.getMemory();
