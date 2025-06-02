@@ -1,5 +1,6 @@
 import { Canvas } from './components/Canvas.js';
 import { AnalyticsDashboard } from './components/AnalyticsDashboard.js';
+import { SupabaseAPI } from './api/supabaseApi.js';
 
 // Memory UI Application
 class MemoryUI {
@@ -15,6 +16,7 @@ class MemoryUI {
     }
 
     init() {
+        this.initializeAPI();
         this.bindEvents();
         this.setupRealtimeEvents();
         this.initializeAnalytics();
@@ -23,6 +25,32 @@ class MemoryUI {
         setTimeout(() => {
             this.loadData();
         }, 100);
+    }
+
+    // Initialize the appropriate API based on environment
+    initializeAPI() {
+        const isProduction = window.location.hostname.includes('railway.app');
+        const useSupabase = isProduction || window.location.search.includes('api=supabase');
+        
+        if (useSupabase) {
+            console.log('🔄 Using Supabase API for production environment');
+            window.memoryAPI = window.supabaseAPI;
+            
+            // Add indicator
+            const indicator = document.createElement('div');
+            indicator.style.cssText = 'position: fixed; top: 10px; right: 10px; background: #059669; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; z-index: 1000;';
+            indicator.textContent = '🗄️ Supabase';
+            document.body.appendChild(indicator);
+        } else {
+            console.log('🔄 Using Railway API for development environment');
+            // memoryAPI will be loaded from memoryApiV2.js
+            
+            // Add indicator
+            const indicator = document.createElement('div');
+            indicator.style.cssText = 'position: fixed; top: 10px; right: 10px; background: #7c3aed; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; z-index: 1000;';
+            indicator.textContent = '🚂 Railway';
+            document.body.appendChild(indicator);
+        }
     }
 
     bindEvents() {

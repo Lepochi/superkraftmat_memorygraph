@@ -1,10 +1,12 @@
-// Import the API module (v2 with v1 compatibility)
+// Import the API modules
 import { MemoryAPI } from './api/memoryApiV2.js';
+import { SupabaseAPI } from './api/supabaseApi.js';
 
-// Make sure it's available globally (memoryApiV2.js should already do this, but double-check)
+// Make sure they're available globally
 if (!window.memoryAPI) {
     window.memoryAPI = MemoryAPI;
 }
+window.supabaseAPI = SupabaseAPI;
 
 // Import the framework
 import '../framework.js';
