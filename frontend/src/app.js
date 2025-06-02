@@ -34,7 +34,17 @@ class MemoryUI {
         
         if (useSupabase) {
             console.log('🔄 Using Supabase API for production environment');
-            window.memoryAPI = window.supabaseAPI;
+            // Wait for supabaseAPI to be available, then assign it
+            if (window.supabaseAPI) {
+                window.memoryAPI = window.supabaseAPI;
+            } else {
+                // Wait for the module to load
+                setTimeout(() => {
+                    if (window.supabaseAPI) {
+                        window.memoryAPI = window.supabaseAPI;
+                    }
+                }, 50);
+            }
             
             // Add indicator
             const indicator = document.createElement('div');
@@ -164,10 +174,19 @@ class MemoryUI {
 
     async loadData() {
         try {
+            // Wait a bit for API to be available, then check
+            let attempts = 0;
+            while (!window.memoryAPI && attempts < 10) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+                attempts++;
+            }
+            
             // Check if memoryAPI is available
             if (!window.memoryAPI) {
-                throw new Error('memoryAPI not available');
+                throw new Error('memoryAPI not available after waiting');
             }
+            
+            console.log('📊 Loading data using:', window.memoryAPI.constructor.name || 'Unknown API');
             
             // Check if backend is available
             await window.memoryAPI.checkHealth();
@@ -185,7 +204,7 @@ class MemoryUI {
             
         } catch (error) {
             console.error('Failed to load data:', error);
-            this.showNotification('Failed to connect to backend. Using offline mode.', 'error');
+            this.showNotification(`Failed to connect to backend: ${error.message}. Using offline mode.`, 'error');
             
             // Fallback to empty state
             this.entities = [];
