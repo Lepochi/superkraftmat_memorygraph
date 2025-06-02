@@ -151,6 +151,25 @@
         </div>
     </div>
 
+    <!-- Quick Capture Modal -->
+    <div class="quick-capture-overlay" id="quickCaptureOverlay">
+        <div class="quick-capture">
+            <input type="text" id="quickCaptureInput" 
+                placeholder="Type to add a memory... (examples: 'John works at Google', 'learned about React hooks', 'meeting with Sarah about Project X')" 
+                autofocus>
+            <div class="quick-capture-hints" id="quickCaptureHints">
+                <div class="hint-section">
+                    <span class="hint-label">Press Enter to add</span>
+                    <span class="hint-label">Esc to cancel</span>
+                </div>
+                <div class="preview-section" id="previewSection" style="display: none;">
+                    <h4>Will create:</h4>
+                    <div id="previewContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script type="module" src="./src/index.js"></script>
 </body>

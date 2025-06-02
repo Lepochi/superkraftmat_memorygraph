@@ -107,6 +107,18 @@ class MemoryUI {
 
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => this.handleKeyboard(e));
+        
+        // Quick capture input
+        const quickInput = document.getElementById('quickCaptureInput');
+        if (quickInput) {
+            quickInput.addEventListener('input', (e) => this.updateQuickCapturePreview(e.target.value));
+            quickInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    this.processQuickCapture();
+                }
+            });
+        }
     }
 
     setupRealtimeEvents() {
@@ -695,9 +707,23 @@ class MemoryUI {
     }
 
     handleKeyboard(e) {
+        // Quick capture overlay shortcuts
+        const overlay = document.getElementById('quickCaptureOverlay');
+        if (overlay && overlay.classList.contains('active')) {
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                this.hideQuickCapture();
+            }
+            return;
+        }
+        
         // Keyboard shortcuts
         if (e.metaKey || e.ctrlKey) {
             switch (e.key) {
+                case 'k':
+                    e.preventDefault();
+                    this.showQuickCapture();
+                    break;
                 case 'n':
                     e.preventDefault();
                     this.showAddEntityModal();
@@ -979,6 +1005,196 @@ class MemoryUI {
             console.error('Failed to load data:', error);
             this.showNotification('Failed to load data', 'error');
             this.hideLoading();
+        }
+    }
+    
+    // Quick Capture Methods
+    showQuickCapture() {
+        const overlay = document.getElementById('quickCaptureOverlay');
+        const input = document.getElementById('quickCaptureInput');
+        
+        if (overlay) {
+            overlay.classList.add('active');
+            if (input) {
+                input.value = '';
+                input.focus();
+                this.updateQuickCapturePreview('');
+            }
+        }
+    }
+    
+    hideQuickCapture() {
+        const overlay = document.getElementById('quickCaptureOverlay');
+        if (overlay) {
+            overlay.classList.remove('active');
+        }
+    }
+    
+    updateQuickCapturePreview(text) {
+        const previewSection = document.getElementById('previewSection');
+        const previewContent = document.getElementById('previewContent');
+        
+        if (!text.trim()) {
+            previewSection.style.display = 'none';
+            return;
+        }
+        
+        const parsed = this.parseNaturalLanguage(text);
+        
+        if (parsed.entities.length > 0 || parsed.relations.length > 0) {
+            previewSection.style.display = 'block';
+            
+            let html = '';
+            
+            // Show entities
+            parsed.entities.forEach(entity => {
+                html += `<div class="preview-item">
+                    <span class="type">${entity.type}</span>
+                    <span>${entity.name}</span>
+                    ${entity.observations.length > 0 ? `<span style="color: #8b949e;">(${entity.observations.join(', ')})</span>` : ''}
+                </div>`;
+            });
+            
+            // Show relations
+            parsed.relations.forEach(rel => {
+                html += `<div class="preview-item">
+                    <span class="type">relation</span>
+                    <span>${rel.from} → ${rel.type} → ${rel.to}</span>
+                </div>`;
+            });
+            
+            previewContent.innerHTML = html;
+        } else {
+            previewSection.style.display = 'none';
+        }
+    }
+    
+    parseNaturalLanguage(text) {
+        const entities = [];
+        const relations = [];
+        
+        // Pattern: "X works at Y" or "X works for Y"
+        const workPattern = /(\w+(?:\s+\w+)*)\s+works?\s+(?:at|for)\s+(\w+(?:\s+\w+)*)/i;
+        const workMatch = text.match(workPattern);
+        if (workMatch) {
+            entities.push({
+                name: workMatch[1],
+                type: 'person',
+                observations: []
+            });
+            entities.push({
+                name: workMatch[2],
+                type: 'organization',
+                observations: []
+            });
+            relations.push({
+                from: workMatch[1],
+                to: workMatch[2],
+                type: 'works at'
+            });
+        }
+        
+        // Pattern: "meeting with X about Y"
+        const meetingPattern = /meeting\s+with\s+(\w+(?:\s+\w+)*)\s+about\s+(.+)/i;
+        const meetingMatch = text.match(meetingPattern);
+        if (meetingMatch) {
+            entities.push({
+                name: meetingMatch[1],
+                type: 'person',
+                observations: []
+            });
+            entities.push({
+                name: meetingMatch[2],
+                type: 'project',
+                observations: []
+            });
+            relations.push({
+                from: meetingMatch[1],
+                to: meetingMatch[2],
+                type: 'meeting about'
+            });
+        }
+        
+        // Pattern: "learned about X" or "learned that X"
+        const learnedPattern = /learned\s+(?:about|that)\s+(.+)/i;
+        const learnedMatch = text.match(learnedPattern);
+        if (learnedMatch && !workMatch && !meetingMatch) {
+            entities.push({
+                name: learnedMatch[1].split(' ').slice(0, 3).join(' '),
+                type: 'concept',
+                observations: [learnedMatch[1]]
+            });
+        }
+        
+        // Pattern: "X is Y" (simple fact)
+        const isPattern = /(\w+(?:\s+\w+)*)\s+is\s+(.+)/i;
+        const isMatch = text.match(isPattern);
+        if (isMatch && !workMatch && !meetingMatch && !learnedMatch) {
+            entities.push({
+                name: isMatch[1],
+                type: 'concept',
+                observations: [isMatch[2]]
+            });
+        }
+        
+        // If no patterns match, create a simple entity
+        if (entities.length === 0 && text.trim().length > 0) {
+            entities.push({
+                name: text.trim(),
+                type: 'concept',
+                observations: []
+            });
+        }
+        
+        return { entities, relations };
+    }
+    
+    async processQuickCapture() {
+        const input = document.getElementById('quickCaptureInput');
+        const text = input.value.trim();
+        
+        if (!text) return;
+        
+        const parsed = this.parseNaturalLanguage(text);
+        
+        try {
+            // Create entities first
+            const createdEntities = {};
+            for (const entity of parsed.entities) {
+                const created = await window.memoryAPI.createEntity({
+                    name: entity.name,
+                    entityType: entity.type,
+                    observations: entity.observations
+                });
+                createdEntities[entity.name] = created;
+            }
+            
+            // Create relations
+            for (const relation of parsed.relations) {
+                await window.memoryAPI.createRelation({
+                    from: relation.from,
+                    to: relation.to,
+                    relationType: relation.type
+                });
+            }
+            
+            // Reload data
+            await this.loadData();
+            
+            // Hide quick capture
+            this.hideQuickCapture();
+            
+            // Show success
+            const entityCount = parsed.entities.length;
+            const relationCount = parsed.relations.length;
+            this.showNotification(
+                `Created ${entityCount} ${entityCount === 1 ? 'entity' : 'entities'} and ${relationCount} ${relationCount === 1 ? 'relation' : 'relations'}`,
+                'success'
+            );
+            
+        } catch (error) {
+            console.error('Failed to process quick capture:', error);
+            this.showNotification('Failed to create memory', 'error');
         }
     }
 }
