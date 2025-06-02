@@ -1026,7 +1026,19 @@ class MemoryUI {
     async loadData() {
         try {
             this.showLoading();
-            const data = await window.memoryAPI.getMemory();
+            
+            // Check which API we're using and call the appropriate method
+            let data;
+            if (window.memoryAPI.fetchAllEntities) {
+                // SupabaseAPI
+                data = await window.memoryAPI.fetchAllEntities();
+            } else if (window.memoryAPI.getMemory) {
+                // MemoryAPIV2
+                data = await window.memoryAPI.getMemory();
+            } else {
+                throw new Error('No valid data fetching method found');
+            }
+            
             this.entities = data.entities || [];
             this.relations = data.relations || [];
             
