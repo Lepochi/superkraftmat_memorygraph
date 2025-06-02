@@ -21,10 +21,23 @@ class MemoryUI {
         this.setupRealtimeEvents();
         this.initializeAnalytics();
         
-        // Wait a bit for modules to load, then load data
-        setTimeout(() => {
-            this.loadData();
-        }, 100);
+        // Wait for API to be properly initialized before loading data
+        const checkAndLoad = () => {
+            if (window.memoryAPI && (window.memoryAPI.fetchAllEntities || window.memoryAPI.getEntities)) {
+                this.loadData();
+            } else {
+                // Keep checking every 50ms up to 2 seconds
+                if (this.apiCheckAttempts < 40) {
+                    this.apiCheckAttempts = (this.apiCheckAttempts || 0) + 1;
+                    setTimeout(checkAndLoad, 50);
+                } else {
+                    console.error('Failed to initialize API after 2 seconds');
+                    this.showNotification('Failed to initialize API', 'error');
+                }
+            }
+        };
+        
+        checkAndLoad();
     }
 
     // Initialize the appropriate API based on environment
@@ -928,6 +941,41 @@ class MemoryUI {
             notification.style.animation = 'slideOut 0.3s ease';
             setTimeout(() => notification.remove(), 300);
         }, 3000);
+    }
+    
+    showLoading() {
+        // Create loading overlay if it doesn't exist
+        let loadingOverlay = document.getElementById('loadingOverlay');
+        if (!loadingOverlay) {
+            loadingOverlay = document.createElement('div');
+            loadingOverlay.id = 'loadingOverlay';
+            loadingOverlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.7);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 9999;
+            `;
+            loadingOverlay.innerHTML = `
+                <div style="color: white; font-size: 18px;">
+                    Loading...
+                </div>
+            `;
+            document.body.appendChild(loadingOverlay);
+        }
+        loadingOverlay.style.display = 'flex';
+    }
+    
+    hideLoading() {
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        if (loadingOverlay) {
+            loadingOverlay.style.display = 'none';
+        }
     }
 
     async toggleApiVersion() {
