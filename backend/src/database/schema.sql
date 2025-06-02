@@ -15,7 +15,8 @@ CREATE TABLE IF NOT EXISTS entities (
     updated_at INTEGER NOT NULL DEFAULT (unixepoch()),
     last_accessed INTEGER NOT NULL DEFAULT (unixepoch()),
     access_count INTEGER DEFAULT 0,
-    metadata TEXT -- JSON for additional properties
+    metadata TEXT, -- JSON for additional properties
+    embedding TEXT -- JSON array of embedding vector for semantic search
 );
 
 -- Relations table - Connections between entities
@@ -59,6 +60,7 @@ CREATE INDEX IF NOT EXISTS idx_entities_type ON entities(type);
 CREATE INDEX IF NOT EXISTS idx_entities_importance ON entities(importance_score DESC);
 CREATE INDEX IF NOT EXISTS idx_entities_updated ON entities(updated_at DESC);
 CREATE INDEX IF NOT EXISTS idx_entities_accessed ON entities(last_accessed DESC);
+CREATE INDEX IF NOT EXISTS idx_entities_embedding ON entities(embedding) WHERE embedding IS NOT NULL;
 
 CREATE INDEX IF NOT EXISTS idx_relations_source ON relations(source_id);
 CREATE INDEX IF NOT EXISTS idx_relations_target ON relations(target_id);

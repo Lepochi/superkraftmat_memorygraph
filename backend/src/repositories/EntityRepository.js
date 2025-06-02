@@ -16,8 +16,8 @@ class EntityRepository extends BaseRepository {
     prepareStatements() {
         return {
             create: this.db.prepare(`
-                INSERT INTO entities (id, type, name, description, importance_score, metadata)
-                VALUES (@id, @type, @name, @description, @importance_score, @metadata)
+                INSERT INTO entities (id, type, name, description, importance_score, metadata, embedding)
+                VALUES (@id, @type, @name, @description, @importance_score, @metadata, @embedding)
             `),
             
             update: this.db.prepare(`
@@ -26,6 +26,7 @@ class EntityRepository extends BaseRepository {
                     description = @description, 
                     importance_score = @importance_score, 
                     metadata = @metadata,
+                    embedding = @embedding,
                     last_accessed = unixepoch()
                 WHERE id = @id
             `),
@@ -76,7 +77,8 @@ class EntityRepository extends BaseRepository {
             name: data.name,
             description: data.description || '',
             importance_score: data.importance_score || 0.5,
-            metadata: JSON.stringify(data.metadata || {})
+            metadata: JSON.stringify(data.metadata || {}),
+            embedding: data.embedding ? JSON.stringify(data.embedding) : null
         };
 
         this.preparedStatements.create.run(entity);
@@ -100,7 +102,8 @@ class EntityRepository extends BaseRepository {
             metadata: JSON.stringify({
                 ...this.parseJSON(current.metadata),
                 ...(data.metadata || {})
-            })
+            }),
+            embedding: data.embedding ? JSON.stringify(data.embedding) : current.embedding
         };
 
         this.preparedStatements.update.run(updated);
@@ -127,21 +130,26 @@ class EntityRepository extends BaseRepository {
     }
 
     /**
-     * Override base findById to parse metadata
+     * Override base findById to parse metadata and embedding
      */
     findById(id) {
         const entity = super.findById(id);
-        return entity ? { ...entity, metadata: this.parseJSON(entity.metadata) } : null;
+        return entity ? { 
+            ...entity, 
+            metadata: this.parseJSON(entity.metadata),
+            embedding: entity.embedding ? JSON.parse(entity.embedding) : null
+        } : null;
     }
 
     /**
-     * Override base findAll to parse metadata
+     * Override base findAll to parse metadata and embedding
      */
     findAll(limit = 100, offset = 0) {
         const entities = super.findAll(limit, offset);
         return entities.map(entity => ({
             ...entity,
-            metadata: this.parseJSON(entity.metadata)
+            metadata: this.parseJSON(entity.metadata),
+            embedding: entity.embedding ? JSON.parse(entity.embedding) : null
         }));
     }
 
@@ -299,6 +307,81 @@ class EntityRepository extends BaseRepository {
             }
             return created;
         });
+    }
+
+    /**
+     * Update entity embedding
+     */
+    updateEmbedding(id, embedding) {
+        const stmt = this.db.prepare(`
+            UPDATE entities 
+            SET embedding = @embedding
+            WHERE id = @id
+        `);
+        
+        const result = stmt.run({
+            id,
+            embedding: JSON.stringify(embedding)
+        });
+        
+        return result.changes > 0;
+    }
+
+    /**
+     * Get all entities with embeddings
+     */
+    getEntitiesWithEmbeddings(limit = 1000) {
+        const entities = this.db.prepare(`
+            SELECT * FROM entities 
+            WHERE embedding IS NOT NULL
+            ORDER BY updated_at DESC
+            LIMIT ?
+        `).all(limit);
+
+        return entities.map(entity => ({
+            ...entity,
+            metadata: this.parseJSON(entity.metadata),
+            embedding: entity.embedding ? JSON.parse(entity.embedding) : null
+        }));
+    }
+
+    /**
+     * Get entities without embeddings
+     */
+    getEntitiesWithoutEmbeddings(limit = 100) {
+        const entities = this.db.prepare(`
+            SELECT * FROM entities 
+            WHERE embedding IS NULL
+            ORDER BY updated_at DESC
+            LIMIT ?
+        `).all(limit);
+
+        return entities.map(entity => ({
+            ...entity,
+            metadata: this.parseJSON(entity.metadata)
+        }));
+    }
+
+    /**
+     * Count entities with/without embeddings
+     */
+    getEmbeddingStats() {
+        const withEmbeddings = this.db.prepare(`
+            SELECT COUNT(*) as count FROM entities WHERE embedding IS NOT NULL
+        `).get();
+        
+        const withoutEmbeddings = this.db.prepare(`
+            SELECT COUNT(*) as count FROM entities WHERE embedding IS NULL
+        `).get();
+        
+        const total = withEmbeddings.count + withoutEmbeddings.count;
+        
+        return {
+            total,
+            withEmbeddings: withEmbeddings.count,
+            withoutEmbeddings: withoutEmbeddings.count,
+            percentage: total > 0 ? Math.round((withEmbeddings.count / total) * 100) : 0
+        };
     }
 }
 
