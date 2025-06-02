@@ -216,6 +216,46 @@ Create a self-maintaining documentation ecosystem where Claude Code automaticall
 
 ---
 
-*Framework Version: 1.0*
-*Created: June 1, 2025*
-*Status: Implementation Ready*
+## 📚 **Documentation File Reference**
+
+### **Core Documentation Files**
+
+#### **CLAUDE.md** - *Main Context for Claude Sessions*
+**Purpose**: Primary context file for ALL Claude interactions
+**Auto-Updates**: Phase completion, critical issues, environment changes, file structure changes
+
+#### **ROADMAP.md** - *Strategic Vision & High-Level Phases*  
+**Purpose**: Strategic overview and milestone tracking
+**Auto-Updates**: Major milestones, strategic direction changes, high-level priorities
+
+#### **SESSION_HANDOFF.md** - *Inter-Session Context Transfer*
+**Purpose**: Essential context for session continuity
+**Auto-Updates**: Session completion, task handoffs, current priorities
+
+#### **README.md** - *User-Facing Introduction*
+**Purpose**: First impression for new users and developers
+**Auto-Updates**: Core feature changes, installation process changes
+
+### **Documentation Directory Structure**
+```
+docs/
+├── README.md (documentation index)
+├── architecture/ (technical specifications)
+├── context/ (business and project context) 
+├── development/ (workflows and processes)
+├── reference/ (tools, commands, API docs)
+└── user-guide/ (end-user documentation)
+```
+
+### **Auto-Update Triggers**
+- **Task Completion**: Update implementation status, progress percentages
+- **File Changes**: Update technical specifications, API documentation
+- **Phase Milestones**: Update strategic roadmaps, current focus areas
+- **System Changes**: Update health status, metrics, configuration
+- **Session End**: Update handoff documentation for continuity
+
+---
+
+*Framework Version: 1.0*  
+*Created: June 1, 2025*  
+*Status: Implementation Ready - Includes integrated documentation organization guide*

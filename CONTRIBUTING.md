@@ -37,9 +37,9 @@ This project and everyone participating in it is governed by our Code of Conduct
 4. **Load Project Context**
    ```bash
    # If using Claude Code
-   claude "Read @docs/context/PROJECT_CONTEXT.md"
-   claude "Read @docs/context/CODING_STANDARDS.md"
-   claude "Read @docs/context/CURRENT_STATE.md"
+   claude "Read @docs/context/project-context.md"
+   claude "Read @docs/context/coding-standards.md"
+   claude "Read @docs/context/current-state.md"
    ```
 
 5. **Run Tests**
@@ -84,7 +84,7 @@ Enhancement suggestions are tracked as GitHub issues.
    ```bash
    git checkout -b feature/amazing-feature
    ```
-5. **Follow coding standards** (see `docs/context/CODING_STANDARDS.md`)
+5. **Follow coding standards** (see `docs/context/coding-standards.md`)
 6. **Write/update tests**
 7. **Update documentation**
 8. **Commit your changes**
@@ -121,7 +121,7 @@ docs: update API documentation for v2 endpoints
 
 ### JavaScript Style
 
-See `docs/context/CODING_STANDARDS.md` for detailed guidelines.
+See `docs/context/coding-standards.md` for detailed guidelines.
 
 Key points:
 - Use ES6+ features
@@ -203,7 +203,7 @@ Check issues tagged with `enhancement` for feature ideas.
 
 ### Stay Updated
 - Watch the repository for updates
-- Check CURRENT_STATE.md for project status
+- Check current-state.md for project status
 
 ## 🏆 Recognition
 
@@ -214,9 +214,9 @@ Contributors will be:
 
 ## 📚 Additional Resources
 
-- [Project Context](docs/context/PROJECT_CONTEXT.md)
-- [Coding Standards](docs/context/CODING_STANDARDS.md)
-- [Current State](docs/context/CURRENT_STATE.md)
+- [Project Context](docs/context/project-context.md)
+- [Coding Standards](docs/context/coding-standards.md)
+- [Current State](docs/context/current-state.md)
 - [Architecture Overview](docs/architecture/README.md)
 
 Thank you for contributing to make the Superkraftmat Memory System better! 🚀

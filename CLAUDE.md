@@ -120,7 +120,7 @@ curl http://localhost:8000/api/v2/info | grep websocket
 - ✅ **Always Current**: Docs reflect real-time system state
 - ✅ **Standardized**: Consistent format across all documentation
 
-**Reference**: See `/AUTOMATED_DOCUMENTATION_FRAMEWORK.md` for complete specification
+**Reference**: See `/docs/development/automated-documentation-framework.md` for complete specification
 
 ## 📋 Implementation Phases & Tasks
 
@@ -383,8 +383,8 @@ curl http://localhost:8000/api/v2/info | grep websocket
 ## 🔗 Key Files
 - Architecture: `/docs/architecture/README.md`
 - Roadmap: `/ROADMAP.md`
-- Current State: `/docs/context/CURRENT_STATE.md`
-- Coding Standards: `/docs/context/CODING_STANDARDS.md`
+- Current State: `/docs/context/current-state.md`
+- Coding Standards: `/docs/context/coding-standards.md`
 
 ## 💡 Important Notes
 - Phase 4 WebSocket integration is COMPLETE but has frontend connection issues
