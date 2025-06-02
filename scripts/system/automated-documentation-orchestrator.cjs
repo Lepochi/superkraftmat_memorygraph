@@ -285,7 +285,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>`;
     // Get comprehensive system status
     async getSystemStatus() {
         const MonitorDaemon = require('./documentation-monitor-daemon.cjs');
-        const DSM = require('./documentation-state-manager.js');
+        const DSM = require('./documentation-state-manager.cjs');
         
         const dsm = new DSM();
         
