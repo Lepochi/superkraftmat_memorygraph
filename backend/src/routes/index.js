@@ -1,6 +1,7 @@
 const express = require('express');
 const memoryV1Routes = require('./v1/memory');
 const memoryV2Routes = require('./v2/memory');
+const analyticsV2Routes = require('./v2/analytics');
 const frameworkRoutes = require('./framework');
 
 /**
@@ -29,6 +30,7 @@ module.exports = (app, { memoryService, repositoryManager, io }) => {
   // Mount v2 routes (new SQLite-based)
   if (repositoryManager) {
     app.use('/api/v2/memory', memoryV2Routes(repositoryManager, io));
+    app.use('/api/v2/analytics', analyticsV2Routes);
   }
 
   // Framework routes (both v1 and v2)
@@ -83,7 +85,17 @@ module.exports = (app, { memoryService, repositoryManager, io }) => {
           delete: 'DELETE /api/v2/memory/relations/:id'
         },
         search: 'GET /api/v2/memory/search',
-        stats: 'GET /api/v2/memory/stats'
+        stats: 'GET /api/v2/memory/stats',
+        analytics: {
+          summary: 'GET /api/v2/analytics/summary',
+          realtime: 'GET /api/v2/analytics/realtime',
+          performance: 'GET /api/v2/analytics/performance',
+          system: 'GET /api/v2/analytics/system',
+          semantic: 'GET /api/v2/analytics/semantic',
+          backend: 'GET /api/v2/analytics/backend',
+          memory: 'GET /api/v2/analytics/memory',
+          health: 'GET /api/v2/analytics/health'
+        }
       },
       features: {
         pagination: true,
@@ -92,7 +104,9 @@ module.exports = (app, { memoryService, repositoryManager, io }) => {
         full_text_search: true,
         metadata_support: true,
         batch_operations: false, // TODO: Add in future
-        websocket: !!io // True when WebSocket is available
+        websocket: !!io, // True when WebSocket is available
+        analytics: true,
+        performance_monitoring: true
       }
     });
   });

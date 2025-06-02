@@ -1,4 +1,5 @@
 import { Canvas } from './components/Canvas.js';
+import { AnalyticsDashboard } from './components/AnalyticsDashboard.js';
 
 // Memory UI Application
 class MemoryUI {
@@ -8,6 +9,7 @@ class MemoryUI {
         this.selectedEntity = null;
         this.currentFilter = 'all';
         this.canvas = null;
+        this.analyticsDashboard = null;
         
         this.init();
     }
@@ -15,6 +17,7 @@ class MemoryUI {
     init() {
         this.bindEvents();
         this.setupRealtimeEvents();
+        this.initializeAnalytics();
         
         // Wait a bit for modules to load, then load data
         setTimeout(() => {
@@ -26,6 +29,7 @@ class MemoryUI {
         // Header buttons
         document.getElementById('addEntityBtn').addEventListener('click', () => this.showAddEntityModal());
         document.getElementById('exportBtn').addEventListener('click', () => this.exportData());
+        document.getElementById('analyticsBtn').addEventListener('click', () => this.toggleAnalytics());
         
         // API version toggle
         const apiBtn = document.getElementById('apiVersionBtn');
@@ -793,6 +797,49 @@ class MemoryUI {
             } catch (error) {
                 console.error('Failed to get stats:', error);
             }
+        }
+    }
+
+    initializeAnalytics() {
+        this.analyticsDashboard = new AnalyticsDashboard();
+    }
+
+    toggleAnalytics() {
+        if (this.analyticsDashboard) {
+            this.analyticsDashboard.toggle();
+        }
+    }
+
+    async loadData() {
+        try {
+            this.showLoading();
+            const data = await window.memoryAPI.getMemory();
+            this.entities = data.entities || [];
+            this.relations = data.relations || [];
+            
+            this.renderEntities();
+            this.renderCanvas();
+            this.hideLoading();
+            
+            // Track memory growth for analytics
+            if (this.analyticsDashboard && window.memoryAPI.apiVersion === 'v2') {
+                const observationCount = this.entities.reduce((sum, entity) => 
+                    sum + (entity.observations?.length || 0), 0);
+                    
+                // This would normally be called from the backend, but we can estimate here
+                if (window.analyticsService) {
+                    window.analyticsService.trackMemoryGrowth(
+                        this.entities.length,
+                        this.relations.length,
+                        observationCount
+                    );
+                }
+            }
+            
+        } catch (error) {
+            console.error('Failed to load data:', error);
+            this.showNotification('Failed to load data', 'error');
+            this.hideLoading();
         }
     }
 }

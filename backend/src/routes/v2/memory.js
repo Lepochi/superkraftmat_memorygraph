@@ -3,6 +3,7 @@ const router = express.Router();
 const asyncHandler = require('../../middleware/asyncHandler');
 const { validate } = require('../../middleware/validation');
 const EmbeddingService = require('../../services/embeddingService');
+const { getAnalyticsService } = require('../../services/analyticsService');
 
 /**
  * Memory API v2 Routes
@@ -14,11 +15,13 @@ module.exports = (repositoryManager, io = null) => {
   const relationRepo = repositoryManager.relations;
   const observationRepo = repositoryManager.observations;
   
-  // Initialize embedding service
+  // Initialize services
   const embeddingService = new EmbeddingService();
+  const analytics = getAnalyticsService();
 
   // List all entities with pagination and filtering
   router.get('/entities', asyncHandler(async (req, res) => {
+    const startTime = performance.now();
     const { 
       page = 1, 
       limit = 50, 
@@ -66,6 +69,15 @@ module.exports = (repositoryManager, io = null) => {
     const offset = (page - 1) * limit;
     const paginatedEntities = entities.slice(offset, offset + parseInt(limit));
     
+    // Track analytics
+    const duration = performance.now() - startTime;
+    analytics.trackQuery('list_entities', duration, { 
+      count: paginatedEntities.length, 
+      total, 
+      hasSearch: !!search, 
+      hasFilter: !!type 
+    });
+    
     res.json({
       entities: paginatedEntities,
       pagination: {
@@ -79,6 +91,7 @@ module.exports = (repositoryManager, io = null) => {
 
   // Get single entity with full details
   router.get('/entities/:id', asyncHandler(async (req, res) => {
+    const startTime = performance.now();
     const { id } = req.params;
     const { includeRelations = true, includeObservations = true } = req.query;
     
@@ -108,6 +121,15 @@ module.exports = (repositoryManager, io = null) => {
     if (includeObservations === 'true') {
       response.observations = observationRepo.findByEntity(id);
     }
+    
+    // Track analytics
+    const duration = performance.now() - startTime;
+    analytics.trackQuery('get_entity', duration, { 
+      entityId: id, 
+      includeRelations: includeRelations === 'true', 
+      includeObservations: includeObservations === 'true' 
+    });
+    analytics.trackEntityAccess(id, 'view');
     
     res.json(response);
   }));
@@ -392,6 +414,7 @@ module.exports = (repositoryManager, io = null) => {
 
   // Enhanced search with multiple strategies including semantic search
   router.get('/search', asyncHandler(async (req, res) => {
+    const startTime = performance.now();
     const { q, type, strategy = 'hybrid', limit = 50, threshold = 0.1 } = req.query;
     
     if (!q) {
@@ -502,6 +525,14 @@ module.exports = (repositoryManager, io = null) => {
         return bScore - aScore;
       }
       return (b.importance_score || 0) - (a.importance_score || 0);
+    });
+    
+    // Track analytics for search
+    const duration = performance.now() - startTime;
+    analytics.trackSemanticSearch(strategy, q, results, duration, {
+      type,
+      threshold: searchThreshold,
+      semanticEnabled: embeddingService.isAvailable()
     });
     
     res.json({
