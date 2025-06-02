@@ -67,7 +67,6 @@ class MemoryUI {
         // Header buttons
         document.getElementById('addEntityBtn').addEventListener('click', () => this.showAddEntityModal());
         document.getElementById('exportBtn').addEventListener('click', () => this.exportData());
-        document.getElementById('analyticsBtn').addEventListener('click', () => this.toggleAnalytics());
         
         // API version toggle
         const apiBtn = document.getElementById('apiVersionBtn');
@@ -495,8 +494,101 @@ class MemoryUI {
     }
 
     editEntity(entityName) {
-        // TODO: Implement edit functionality
-        this.showNotification('Edit functionality coming soon', 'info');
+        const entity = this.entities.find(e => e.name === entityName);
+        if (!entity) return;
+
+        // Create edit modal
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <h3>Edit Entity</h3>
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" id="editEntityName" value="${entity.name}" style="width: 100%;">
+                </div>
+                <div class="form-group">
+                    <label>Type</label>
+                    <select id="editEntityType" style="width: 100%;">
+                        <option value="person" ${entity.entityType === 'person' ? 'selected' : ''}>Person</option>
+                        <option value="concept" ${entity.entityType === 'concept' ? 'selected' : ''}>Concept</option>
+                        <option value="event" ${entity.entityType === 'event' ? 'selected' : ''}>Event</option>
+                        <option value="task" ${entity.entityType === 'task' ? 'selected' : ''}>Task</option>
+                        <option value="other" ${entity.entityType === 'other' ? 'selected' : ''}>Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Observations</label>
+                    <textarea id="editObservations" rows="4" style="width: 100%;">${entity.observations.join('\n')}</textarea>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-secondary" onclick="window.memoryUI.cancelEdit()">Cancel</button>
+                    <button class="btn-primary" onclick="window.memoryUI.saveEntityEdit('${entityName}')">Save</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        modal.style.display = 'flex';
+    }
+
+    cancelEdit() {
+        const modal = document.querySelector('.modal');
+        if (modal) modal.remove();
+    }
+
+    async saveEntityEdit(originalName) {
+        const newName = document.getElementById('editEntityName').value.trim();
+        const newType = document.getElementById('editEntityType').value;
+        const newObservations = document.getElementById('editObservations').value
+            .split('\n')
+            .map(o => o.trim())
+            .filter(o => o);
+
+        if (!newName) {
+            this.showNotification('Name cannot be empty', 'error');
+            return;
+        }
+
+        try {
+            // Find the entity
+            const entity = this.entities.find(e => e.name === originalName);
+            if (!entity) return;
+
+            // Update via API (using entity ID if available)
+            const entityId = entity.id || originalName;
+            await window.memoryAPI.updateEntity(entityId, {
+                name: newName,
+                entityType: newType,
+                observations: newObservations
+            });
+
+            // Update local state
+            entity.name = newName;
+            entity.entityType = newType;
+            entity.observations = newObservations;
+
+            // Update relations if name changed
+            if (originalName !== newName) {
+                this.relations.forEach(rel => {
+                    if (rel.from === originalName) rel.from = newName;
+                    if (rel.to === originalName) rel.to = newName;
+                });
+            }
+
+            // Update UI
+            this.renderEntities();
+            this.renderGraph();
+            if (this.selectedEntity && this.selectedEntity.name === originalName) {
+                this.selectedEntity.name = newName;
+                this.showDetailPanel();
+            }
+
+            this.cancelEdit();
+            this.showNotification('Entity updated successfully', 'success');
+        } catch (error) {
+            console.error('Failed to update entity:', error);
+            this.showNotification(error.message || 'Failed to update entity', 'error');
+        }
     }
 
     async deleteEntity(entityName) {
@@ -895,6 +987,8 @@ class MemoryUI {
 let memoryUI;
 document.addEventListener('DOMContentLoaded', () => {
     memoryUI = new MemoryUI();
+    // Make memoryUI accessible globally for onclick handlers
+    window.memoryUI = memoryUI;
 });
 
 // Add animation styles

@@ -379,6 +379,67 @@ class MemoryAPIV2 {
         }
     }
 
+    // Update entity
+    async updateEntity(entityNameOrId, updates) {
+        try {
+            if (this.apiVersion === 'v2') {
+                // Convert name to ID if needed
+                const entityId = this._entityNameToIdMap.get(entityNameOrId) || entityNameOrId;
+                
+                const response = await this.fetchWithTimeout(`${this.apiPath}/entities/${entityId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updates)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                // Update name mapping if name changed
+                if (updates.name && updates.name !== this._entityIdToNameMap.get(entityId)) {
+                    const oldName = this._entityIdToNameMap.get(entityId);
+                    if (oldName) {
+                        this._entityNameToIdMap.delete(oldName);
+                    }
+                    this._entityNameToIdMap.set(updates.name, entityId);
+                    this._entityIdToNameMap.set(entityId, updates.name);
+                }
+                
+                // Emit local event
+                this.emit('entity:updated', {
+                    entityId,
+                    entity: this._convertFromV2Format(result),
+                    timestamp: Date.now(),
+                    source: 'local'
+                });
+                
+                return this._convertFromV2Format(result);
+            } else {
+                // v1 doesn't have update, so we simulate with delete+create
+                // First get the current entity
+                const currentEntity = await this.getEntity(entityNameOrId);
+                
+                // Delete the old one
+                await this.deleteEntity(entityNameOrId);
+                
+                // Create new one with updates
+                const newEntity = {
+                    ...currentEntity,
+                    ...updates
+                };
+                return await this.createEntity(newEntity);
+            }
+        } catch (error) {
+            console.error('Failed to update entity:', error);
+            throw error;
+        }
+    }
+
     // Create relation
     async createRelation(relation) {
         try {

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory System Analytics</title>
+    <link rel="stylesheet" href="./src/styles/main.css">
+    <link rel="stylesheet" href="./src/styles/analytics.css">
+</head>
+<body>
+    <header>
+        <div class="header-nav">
+            <h1>Memory System Analytics</h1>
+            <nav>
+                <a href="/" class="nav-link">← Back to Memory Graph</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="analytics-container" id="analyticsRoot">
+        <!-- Analytics dashboard will be rendered here -->
+    </div>
+
+    <!-- Scripts -->
+    <script type="module">
+        import { AnalyticsDashboard } from './src/components/AnalyticsDashboard.js';
+        
+        // Initialize analytics dashboard
+        const dashboard = new AnalyticsDashboard();
+        dashboard.render(document.getElementById('analyticsRoot'));
+    </script>
+</body>
+</html>

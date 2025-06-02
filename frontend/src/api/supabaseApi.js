@@ -168,6 +168,78 @@ class SupabaseAPI {
         }
     }
 
+    // Update entity
+    async updateEntity(entityNameOrId, updates) {
+        try {
+            // Convert name to ID if needed
+            const entityId = this._entityNameToIdMap.get(entityNameOrId) || entityNameOrId;
+            
+            // Prepare update payload - Supabase expects flat structure
+            const updatePayload = {
+                name: updates.name,
+                entity_type: updates.entityType || updates.entity_type
+            };
+            
+            const response = await this.fetchWithTimeout(
+                `${this.baseURL}/entities?id=eq.${entityId}`,
+                {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify(updatePayload)
+                }
+            );
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const [updatedEntity] = await response.json();
+            
+            // Update observations if provided
+            if (updates.observations && updates.observations.length > 0) {
+                // Delete existing observations
+                await this.fetchWithTimeout(
+                    `${this.baseURL}/observations?entity_id=eq.${entityId}`,
+                    { method: 'DELETE' }
+                );
+                
+                // Add new observations
+                const observationPromises = updates.observations.map(obs =>
+                    this.fetchWithTimeout(`${this.baseURL}/observations`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            entity_id: entityId,
+                            content: obs,
+                            timestamp: new Date().toISOString()
+                        })
+                    })
+                );
+                await Promise.all(observationPromises);
+            }
+            
+            // Update name mapping if name changed
+            if (updates.name && updates.name !== this._entityIdToNameMap.get(entityId)) {
+                const oldName = this._entityIdToNameMap.get(entityId);
+                if (oldName) {
+                    this._entityNameToIdMap.delete(oldName);
+                }
+                this._entityNameToIdMap.set(updates.name, entityId);
+                this._entityIdToNameMap.set(entityId, updates.name);
+            }
+            
+            // Return in the expected format
+            const result = await this.getEntity(entityId);
+            return result;
+        } catch (error) {
+            console.error('Failed to update entity in Supabase:', error);
+            throw error;
+        }
+    }
+
     // Create relation
     async createRelation(relation) {
         try {
