@@ -149,3 +149,6 @@ memory/data/*.json
 .claude-agents/state/
 .claude-agents/logs/
 ../worktrees/
+
+# AI Fleet worktrees
+.aifleet/worktrees/
