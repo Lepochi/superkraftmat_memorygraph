@@ -3,9 +3,14 @@
 
 class SupabaseAPI {
     constructor() {
-        this.baseURL = 'https://xthjwtxmlmnwcwvqfiai.supabase.co/rest/v1';
-        this.anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0aGp3dHhtbG1ud2N3dnFmaWFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg4MjQ5NDksImV4cCI6MjA2NDQwMDk0OX0.S74yVprmkgmV5-P-J0039WBUvky-4cyFtr5KIcsyhLg';
+        // Get configuration from environment or config file
+        this.baseURL = window.SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL;
+        this.anonKey = window.SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY;
         this.timeout = 10000; // 10 second timeout
+        
+        if (!this.baseURL || !this.anonKey) {
+            console.error('Supabase configuration missing! Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in .env file');
+        }
         
         // Cache for name/ID mappings
         this._entityNameToIdMap = new Map();

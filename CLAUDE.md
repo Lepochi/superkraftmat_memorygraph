@@ -3,18 +3,17 @@
 ## 🚨 CRITICAL INFORMATION FOR ALL CLAUDE SESSIONS
 
 ### 📋 **Essential System Overview**
-**Project**: High-performance memory system for Claude Desktop using SQLite database and custom MCP server
-**Current Status**: Railway + Supabase Production Deployment COMPLETED - Data migration successful
-**Last Update**: June 2, 2025 - Complete Supabase migration with 35 entities, 36 relations, 480 observations
-**Architecture**: Dual deployment (Railway SQLite + Supabase PostgreSQL) + Canvas UI + TypeScript MCP server
+**Project**: High-performance memory system for Claude Desktop with Supabase backend
+**Current Status**: MCP Server Simplified - Ready for new deployment
+**Last Update**: January 6, 2025 - Removed hybrid backend, fixed security, cleaned repository
+**Architecture**: Frontend (Railway) → Supabase PostgreSQL ← MCP Server (TypeScript)
 
 ### 🗄️ **Database & Storage Architecture**
-- **Local**: SQLite with WAL mode (`/memory/database/superkraft.db`)
-- **Railway**: SQLite backend with persistent volume (35 entities, 1 relation)
-- **Supabase**: PostgreSQL with full relationships (35 entities, 36 relations, 480 observations)
+- **Local**: SQLite for development only (`/memory/database/superkraft.db`)
+- **Production**: Supabase PostgreSQL (configured via environment variables)
 - **Schema**: 4 tables (entities, relations, observations, memory_scores)
-- **Performance**: <10ms local, <100ms cloud
-- **Migration**: Complete JSONL→SQLite→Supabase with preserved relationships
+- **Performance**: <10ms local, ~135ms Supabase
+- **MCP Server**: Simplified to use Supabase directly (no hybrid backend)
 
 ### 🔧 **Dependencies & Tech Stack**
 
@@ -42,28 +41,32 @@
 
 ### 🔑 **Critical Environment Variables**
 ```bash
-USE_SQLITE=true          # Enables v2 SQLite mode (REQUIRED)
-NODE_ENV=development     # Sets dev mode
-PORT=8000               # Backend port
-SQLITE_PATH=../memory/database/superkraft.db  # DB path
+# Frontend (frontend/.env)
+VITE_SUPABASE_URL=<your-supabase-url>
+VITE_SUPABASE_ANON_KEY=<your-anon-key>
+
+# MCP Server (mcp-server/.env)
+SUPABASE_URL=<your-supabase-url>
+SUPABASE_ANON_KEY=<your-anon-key>
+
+# Security keys in root .env
+JWT_SECRET=<generated-64-char-hex>
+API_KEY=<generated-32-char-hex>
 ```
 
-### ✅ **System Status (December 30, 2024)**
-1. **Railway Deployment**: COMPLETE - Frontend deployed, connects directly to Supabase ✅
-2. **Frontend-Backend Connection**: FIXED - All API compatibility issues resolved ✅
-3. **Supabase Integration**: COMPLETE - Direct REST API connection working ✅
-4. **Production Data Access**: VERIFIED - 35 entities + 36 relations + 480 observations ✅
-5. **UI/UX Features**: COMPLETE - Edit/Delete/Close buttons, analytics page, quick capture ✅
-6. **CRUD Operations**: FULLY FUNCTIONAL - All operations working with Supabase ✅
-7. **Local Development**: STABLE - Complete development environment ready ✅
-8. **Natural Language**: IMPLEMENTED - Cmd+K quick capture with pattern parsing ✅
+### ✅ **System Status (January 6, 2025)**
+1. **MCP Server**: SIMPLIFIED - Direct Supabase connection, no hybrid backend ✅
+2. **Security**: FIXED - No hardcoded credentials, proper .env configuration ✅
+3. **Repository**: CLEANED - Removed ~50% of files, only essential code remains ✅
+4. **Documentation**: UPDATED - All .md files current and accurate ✅
+5. **Dependencies**: UPDATED - Removed better-sqlite3, added @supabase/supabase-js ✅
+6. **Ready for Deployment**: System configured with user's own Supabase instance ✅
 
-### 🚀 **Production URLs**
-- **Railway Frontend**: `https://superkraftmatmemorygraph-production-493c.up.railway.app` ✅ ACTIVE
-- **Supabase Database**: `https://xthjwtxmlmnwcwvqfiai.supabase.co` ✅ ACTIVE (35 entities, 36 relations)
-- **Railway Backend**: `https://superkraftmatmemorygraph-production.up.railway.app` (SQLite, for dev/testing)
-- **Local Backend**: `http://localhost:8000` (development)
-- **Local Frontend**: `http://localhost:5173` (Vite proxy)
+### 🚀 **URLs**
+- **Railway Frontend**: To be configured with your Railway deployment
+- **Supabase Database**: To be configured with your Supabase project
+- **Local Backend**: `http://localhost:8000` (optional, for development)
+- **Local Frontend**: `http://localhost:5173` (Vite dev server)
 
 ### 📂 **Critical File Locations**
 ```
