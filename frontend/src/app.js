@@ -42,7 +42,7 @@ class MemoryUI {
 
     // Initialize the appropriate API based on environment
     initializeAPI() {
-        const isProduction = window.location.hostname.includes('railway.app');
+        const isProduction = window.location.hostname.includes('railway.app') || window.location.hostname.includes('.up.railway.app');
         const useSupabase = isProduction || window.location.search.includes('api=supabase');
         
         if (useSupabase) {
@@ -212,23 +212,51 @@ class MemoryUI {
             
             console.log('📊 Loading data using:', window.memoryAPI.constructor.name || 'Unknown API');
             
+            this.showLoading();
+            
             // Check if backend is available
             await window.memoryAPI.checkHealth();
             
-            // Load actual memory data from backend
-            const data = await window.memoryAPI.fetchMemory();
+            // Check which API we're using and call the appropriate method
+            let data;
+            if (window.memoryAPI.fetchMemory) {
+                // SupabaseAPI
+                data = await window.memoryAPI.fetchMemory();
+            } else if (window.memoryAPI.getMemory) {
+                // MemoryAPIV2
+                data = await window.memoryAPI.getMemory();
+            } else {
+                throw new Error('No valid data fetching method found');
+            }
             
             this.entities = data.entities || [];
             this.relations = data.relations || [];
             
             this.renderEntities();
             this.renderGraph();
+            this.hideLoading();
             
             this.showNotification(`Loaded ${this.entities.length} entities and ${this.relations.length} relations`, 'success');
+            
+            // Track memory growth for analytics
+            if (this.analyticsDashboard && window.memoryAPI.apiVersion === 'v2') {
+                const observationCount = this.entities.reduce((sum, entity) => 
+                    sum + (entity.observations?.length || 0), 0);
+                    
+                // This would normally be called from the backend, but we can estimate here
+                if (window.analyticsService) {
+                    window.analyticsService.trackMemoryGrowth(
+                        this.entities.length,
+                        this.relations.length,
+                        observationCount
+                    );
+                }
+            }
             
         } catch (error) {
             console.error('Failed to load data:', error);
             this.showNotification(`Failed to connect to backend: ${error.message}. Using offline mode.`, 'error');
+            this.hideLoading();
             
             // Fallback to empty state
             this.entities = [];
@@ -1023,50 +1051,6 @@ class MemoryUI {
         }
     }
 
-    async loadData() {
-        try {
-            this.showLoading();
-            
-            // Check which API we're using and call the appropriate method
-            let data;
-            if (window.memoryAPI.fetchMemory) {
-                // SupabaseAPI
-                data = await window.memoryAPI.fetchMemory();
-            } else if (window.memoryAPI.getMemory) {
-                // MemoryAPIV2
-                data = await window.memoryAPI.getMemory();
-            } else {
-                throw new Error('No valid data fetching method found');
-            }
-            
-            this.entities = data.entities || [];
-            this.relations = data.relations || [];
-            
-            this.renderEntities();
-            this.renderCanvas();
-            this.hideLoading();
-            
-            // Track memory growth for analytics
-            if (this.analyticsDashboard && window.memoryAPI.apiVersion === 'v2') {
-                const observationCount = this.entities.reduce((sum, entity) => 
-                    sum + (entity.observations?.length || 0), 0);
-                    
-                // This would normally be called from the backend, but we can estimate here
-                if (window.analyticsService) {
-                    window.analyticsService.trackMemoryGrowth(
-                        this.entities.length,
-                        this.relations.length,
-                        observationCount
-                    );
-                }
-            }
-            
-        } catch (error) {
-            console.error('Failed to load data:', error);
-            this.showNotification('Failed to load data', 'error');
-            this.hideLoading();
-        }
-    }
     
     // Quick Capture Methods
     showQuickCapture() {

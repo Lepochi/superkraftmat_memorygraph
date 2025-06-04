@@ -4,13 +4,21 @@
 class SupabaseAPI {
     constructor() {
         // Get configuration from environment or config file
-        this.baseURL = window.SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL;
+        const supabaseUrl = window.SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL;
         this.anonKey = window.SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY;
         this.timeout = 10000; // 10 second timeout
         
-        if (!this.baseURL || !this.anonKey) {
+        if (!supabaseUrl || !this.anonKey) {
             console.error('Supabase configuration missing! Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in .env file');
         }
+        
+        // Ensure baseURL includes the REST API path
+        this.baseURL = supabaseUrl ? (supabaseUrl.endsWith('/') ? `${supabaseUrl}rest/v1` : `${supabaseUrl}/rest/v1`) : null;
+        
+        console.log('🔧 Supabase API initialized with:', {
+            baseURL: this.baseURL,
+            hasAnonKey: !!this.anonKey
+        });
         
         // Cache for name/ID mappings
         this._entityNameToIdMap = new Map();
@@ -97,10 +105,14 @@ class SupabaseAPI {
     // Fetch all memory data
     async fetchMemory() {
         try {
+            console.log('📥 Fetching memory data from Supabase...');
+            
             const [entities, relations] = await Promise.all([
                 this.fetchAllEntities(),
                 this.fetchAllRelations()
             ]);
+            
+            console.log(`✅ Fetched ${entities.length} entities and ${relations.length} relations from Supabase`);
             
             return this.convertToUIFormat({ entities, relations });
         } catch (error) {
