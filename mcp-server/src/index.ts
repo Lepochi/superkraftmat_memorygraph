@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import 'dotenv/config';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
@@ -152,6 +153,109 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             }
           },
           required: ['id', 'updates']
+        }
+      },
+      {
+        name: 'createMemory',
+        description: 'Create a new entity in the memory system',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            name: { type: 'string', description: 'Entity name' },
+            type: {
+              type: 'string',
+              enum: ['person', 'concept', 'event', 'task', 'insight', 'goal'],
+              description: 'Entity type'
+            },
+            description: { type: 'string', description: 'Entity description' },
+            importanceScore: { 
+              type: 'number', 
+              minimum: 0, 
+              maximum: 1, 
+              description: 'Importance score (0-1)',
+              default: 0.5 
+            },
+            metadata: { type: 'object', description: 'Additional metadata' }
+          },
+          required: ['name', 'type']
+        }
+      },
+      {
+        name: 'deleteMemory',
+        description: 'Delete an entity from the memory system',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', description: 'Entity ID to delete' }
+          },
+          required: ['id']
+        }
+      },
+      {
+        name: 'createRelation',
+        description: 'Create a relationship between two entities',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            sourceId: { type: 'string', description: 'Source entity ID' },
+            targetId: { type: 'string', description: 'Target entity ID' },
+            type: {
+              type: 'string',
+              enum: ['relates_to', 'causes', 'prevents', 'supports', 'contradicts', 'requires', 'part_of'],
+              description: 'Relationship type'
+            },
+            strength: {
+              type: 'number',
+              minimum: 0,
+              maximum: 1,
+              description: 'Relationship strength (0-1)',
+              default: 0.5
+            },
+            metadata: { type: 'object', description: 'Additional metadata' }
+          },
+          required: ['sourceId', 'targetId', 'type']
+        }
+      },
+      {
+        name: 'deleteRelation',
+        description: 'Delete a relationship between entities',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            relationId: { type: 'number', description: 'Relation ID to delete' }
+          },
+          required: ['relationId']
+        }
+      },
+      {
+        name: 'addObservation',
+        description: 'Add an observation to an entity',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            entityId: { type: 'string', description: 'Entity ID to add observation to' },
+            content: { type: 'string', description: 'Observation content' },
+            importance: {
+              type: 'number',
+              minimum: 0,
+              maximum: 1,
+              description: 'Importance of the observation (0-1)',
+              default: 0.5
+            },
+            context: { type: 'object', description: 'Additional context for the observation' }
+          },
+          required: ['entityId', 'content']
+        }
+      },
+      {
+        name: 'deleteObservation',
+        description: 'Delete an observation',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            observationId: { type: 'number', description: 'Observation ID to delete' }
+          },
+          required: ['observationId']
         }
       },
       // Railway Tools
@@ -421,6 +525,130 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             {
               type: 'text',
               text: JSON.stringify({ success: true, entity: updatedEntity }, null, 2)
+            }
+          ]
+        };
+      }
+
+      case 'createMemory': {
+        const { name, type, description, importanceScore, metadata } = args as any;
+        
+        const entity = await db.createEntity(name, type, description, importanceScore, metadata);
+        
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify({ success: true, entity }, null, 2)
+            }
+          ]
+        };
+      }
+
+      case 'deleteMemory': {
+        const { id } = args as any;
+        
+        // Check if entity exists
+        const entity = await db.getEntity(id);
+        if (!entity) {
+          throw new McpError(ErrorCode.InvalidRequest, `Entity ${id} not found`);
+        }
+        
+        await db.deleteEntity(id);
+        
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify({ success: true, message: `Entity ${id} deleted successfully` }, null, 2)
+            }
+          ]
+        };
+      }
+
+      case 'createRelation': {
+        const { sourceId, targetId, type, strength, metadata } = args as any;
+        
+        // Verify both entities exist
+        const [sourceEntity, targetEntity] = await Promise.all([
+          db.getEntity(sourceId),
+          db.getEntity(targetId)
+        ]);
+        
+        if (!sourceEntity) {
+          throw new McpError(ErrorCode.InvalidRequest, `Source entity ${sourceId} not found`);
+        }
+        if (!targetEntity) {
+          throw new McpError(ErrorCode.InvalidRequest, `Target entity ${targetId} not found`);
+        }
+        
+        const relation = await db.createRelation(sourceId, targetId, type, strength, metadata);
+        
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify({ 
+                success: true, 
+                relation,
+                source: { id: sourceEntity.id, name: sourceEntity.name },
+                target: { id: targetEntity.id, name: targetEntity.name }
+              }, null, 2)
+            }
+          ]
+        };
+      }
+
+      case 'deleteRelation': {
+        const { relationId } = args as any;
+        
+        await db.deleteRelation(relationId);
+        
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify({ success: true, message: `Relation ${relationId} deleted successfully` }, null, 2)
+            }
+          ]
+        };
+      }
+
+      case 'addObservation': {
+        const { entityId, content, importance, context } = args as any;
+        
+        // Verify entity exists
+        const entity = await db.getEntity(entityId);
+        if (!entity) {
+          throw new McpError(ErrorCode.InvalidRequest, `Entity ${entityId} not found`);
+        }
+        
+        const observation = await db.createObservation(entityId, content, importance, context);
+        
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify({ 
+                success: true, 
+                observation,
+                entity: { id: entity.id, name: entity.name }
+              }, null, 2)
+            }
+          ]
+        };
+      }
+
+      case 'deleteObservation': {
+        const { observationId } = args as any;
+        
+        await db.deleteObservation(observationId);
+        
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify({ success: true, message: `Observation ${observationId} deleted successfully` }, null, 2)
             }
           ]
         };
